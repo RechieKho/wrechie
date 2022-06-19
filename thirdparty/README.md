@@ -18,4 +18,12 @@ Please keep categories (`##` level) listed alphabetically and matching their res
 - Version: git (4ffe2ed38b238ff410e70654cbe38883f7533d3f, 2022)
 - License: MIT
 
-The compiled static libraries for each platform is stored in its corresponding folder, for instance, static library for linux is in `linux/` folder. Header files are stored in `include/` folder
+The compiled static libraries for each platform is stored in its corresponding folder, for instance, static library for linux is in `linux/` folder. Header files are stored in `include/` folder.
+
+
+## fmt
+- Upstream: https://github.com/fmtlib/fmt
+- Version: 8.1.1 (b6f4ceaed0a0a24ccf575fab6c56dd50ccf6f1a9, 2022)
+- License: custom
+
+The compiled static libraries for each platform is stored in its corresponding folder, for instance, static library for linux is in `linux/` folder. Header files are stored in `include/` folder.
