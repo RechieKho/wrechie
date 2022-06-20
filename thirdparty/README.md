@@ -27,3 +27,11 @@ The compiled static libraries for each platform is stored in its corresponding f
 - License: custom
 
 The compiled static libraries for each platform is stored in its corresponding folder, for instance, static library for linux is in `linux/` folder. Header files are stored in `include/` folder.
+
+
+## cxxopts
+- Upstream: https://github.com/jarro2783/cxxopts
+- Version: 3.0.0 (c74846a891b3cc3bfa992d588b1295f528d43039, 2021)
+- License: MIT
+
+It is a header-only library. Header files are stored in `include/` folder.
