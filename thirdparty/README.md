@@ -35,3 +35,20 @@ The compiled static libraries for each platform is stored in its corresponding f
 - License: MIT
 
 It is a header-only library.
+
+
+## dylib
+- Upstream: https://github.com/martin-olivier/dylib
+- Version: 2.0.0 (657cd9f583dbaf5513075a6a0c0a46ebe09cefcd, 2022)
+- License: MIT
+
+It is a header-only library.
+
+
+## cpppath
+- Upstream: https://github.com/tdegeus/cpppath
+- Version: git (4b55179030f324f58f6f5d7041b0109a4ba1586a, 2020)
+- License: MIT
+
+It is a header-only library.
+Add `inline` to `all_equal` function on line `414` to fix multiple definition error.
