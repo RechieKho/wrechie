@@ -14,6 +14,7 @@ opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cpppath", "Use builtin cpppath", True))
 opts.Add(BoolVariable("builtin_dylib", "Use builtin dylib", True))
+opts.Add(BoolVariable("builtin_cjson", "Use builtin cjson", True))
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
 
@@ -31,12 +32,26 @@ if env["compiledb"]:
     if scons_ver >= (4, 0, 0):
         env.Tool("compilation_db")
         env.Alias("compiledb", env.CompilationDatabase())
+## Configure Environment <--
 
-
+## Builtin Libs -->
+builtin_libs = []
 if env["builtin_wren"]:
+    env_wren = env.Clone()
+    env_wren.Append(
+        CPPPATH = [ 
+            Dir("#thirdparty/wren"),
+            Dir("#thirdparty/wren/vm"), 
+            Dir("#thirdparty/wren/optional")
+        ],
+    )
+
+    builtin_libs.append(env_wren.StaticLibrary(
+        File("#thirdparty/wren/libwren.a"), 
+        Glob("#thirdparty/wren/vm/*.c") + Glob("#thirdparty/wren/optional/*.c")
+    ))
     env.Append(
         CPPPATH = [Dir("#thirdparty/wren")],
-        LIBS = [File("#thirdparty/wren/linux/64bit/libwren.a")]
     )
 else:
     env.Append(LIBS=["wren"])
@@ -45,8 +60,12 @@ else:
 if env["builtin_fmt"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/fmt")],
-        LIBS = [File("#thirdparty/fmt/linux/libfmt.a")]
     )
+
+    builtin_libs.append(env.StaticLibrary(
+        File("#thirdparty/fmt/libfmt.a"),
+        Glob("#thirdparty/fmt/src/*.cc")
+    ))
 else:
     env.Append(LIBS=["fmt"])
 
@@ -67,11 +86,25 @@ if env["builtin_dylib"]:
         CPPPATH = [Dir("#thirdparty/dylib")],
         LIBS = ["dl"]
     )
-## Configure Environment <--
+
+if env["builtin_cjson"]:
+    env.Append(
+        CPPPATH = [Dir("#thirdparty/cjson")],
+    )
+
+    builtin_libs.append(env.StaticLibrary(
+        File("#thirdparty/cjson/libcjson.a"),
+        File("#thirdparty/cjson/cJSON.c")
+    ))
+else:
+    env.Append(LIBS=["cjson"])
+## Builtin Libs <--
     
 
 
-env.Append(CPPPATH = Dir("#include"))
-env.Program(File(f"{OUTPUT_DIR}/wrench"), 
+env.Append(CPPPATH = Dir("#include"), LIBS=builtin_libs)
+wrench = env.Program(File(f"{OUTPUT_DIR}/wrench"), 
     [Glob(os.path.join(root, "*.cpp")) for root, dirnames, filenames in os.walk('src')]
 )
+
+env.Depends(wrench, builtin_libs)
