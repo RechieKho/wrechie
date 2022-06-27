@@ -46,7 +46,7 @@ void load(WrenVM *vm){
     const char *dir = wrenGetSlotString(vm, 2);
     const std::string& cwd = ((RuntimeState *)wrenGetUserData(vm))->cwd;
 
-    char resolved_dir[PATH_MAX];
+    char resolved_dir[MAX_PATH_LEN];
     if(strlen(dir)) GET_REAL_PATH_RET(cpppath::join({cwd, dir}).c_str(), resolved_dir,);
 
     latest_loader = strlen(dir)? new dylib(resolved_dir, name) : new dylib(name);

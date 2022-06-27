@@ -29,7 +29,7 @@ int main(int argc, const char *argv[]){
     // Options <--
 
     ERR_COND_EXIT_MSG(!parsed_opts.count("script"), 1, "No script specified.");
-    char script_path[PATH_MAX];
+    char script_path[MAX_PATH_LEN];
     GET_REAL_PATH_RET(parsed_opts["script"].as<std::string>().c_str(), script_path, 1);
     std::string file_content;
     READ_APPEND_FILE_RET(script_path, file_content, 1);

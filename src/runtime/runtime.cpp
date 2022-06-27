@@ -39,7 +39,7 @@ const char *resolveModuleFn(WrenVM *vm, const char *importer, const char *name){
         module_path += CPPPATH_SEP + std::string(name);
 #endif
         module_path = std::move(cpppath::normpath(module_path));
-        char resolved_module_path[PATH_MAX];
+        char resolved_module_path[MAX_PATH_LEN];
         GET_REAL_PATH_RET(module_path.c_str(), resolved_module_path, NULL);
         char *c_module_path = (char *) malloc(sizeof(char) * (module_path.length() + 1));
         strcpy(c_module_path, resolved_module_path);

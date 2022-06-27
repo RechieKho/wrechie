@@ -233,7 +233,7 @@ protected:
 
         if (symbol == nullptr)
             throw symbol_error("Could not locate symbol \"" + std::string(name) + "\":\n" + _get_error_description());
-        return symbol;
+        return (void *)symbol;
     }
 
     static DYLIB_WIN_OTHER(FARPROC, void *)

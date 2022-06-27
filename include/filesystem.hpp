@@ -8,6 +8,7 @@
 #include <fmt/core.h>
 
 #include "log.hpp"
+#include "typedef.hpp"
 
 #ifndef READ_FILE_RET
 #define READ_FILE_RET(path, file_content, ret) { \
@@ -31,10 +32,24 @@
 }
 #endif//READ_APPEND_FILE_RET
 
+#ifndef MAX_PATH_LEN 
+    #if defined WIN32
+        #define MAX_PATH_LEN _MAX_PATH
+    #else
+        #define MAX_PATH_LEN PATH_MAX
+    #endif
+#endif
+
 #ifndef GET_REAL_PATH_RET
-#define GET_REAL_PATH_RET(path, resolved, ret){ \
-    ERR_COND_RET_MSG(realpath(path, resolved) != resolved, ret, fmt::format("Couldn't resolve path '{}'.", path)); \
-}
+    #if defined WIN32
+        #define GET_REAL_PATH_RET(path, resolved, ret){ \
+            ERR_COND_RET_MSG(_fullpath(resolved, path, _MAX_PATH) != resolved, ret, fmt::format("Couldn't resolve path '{}'.", path)); \
+        }
+    #else
+        #define GET_REAL_PATH_RET(path, resolved, ret){ \
+            ERR_COND_RET_MSG(realpath(path, resolved) != resolved, ret, fmt::format("Couldn't resolve path '{}'.", path)); \
+        }
+    #endif
 #endif//GET_REAL_PATH_RET
 
 #ifndef HOME_PATH

@@ -51,7 +51,7 @@ It is a header-only library. Extract all the header files.
 - License: MIT
 
 It is a header-only library.
-Add `inline` to `all_equal` function on line `414` to fix multiple definition error.
+Add `inline` to `all_equal` function on line `414` to fix multiple definition error. Using `WIN32` or `_WIN32` to check whether is on windows to support `mingw` compiler.
 
 
 ## cjson
