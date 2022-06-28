@@ -1,7 +1,6 @@
 #ifndef _FOREIGN_DB_HPP_
 #define _FOREIGN_DB_HPP_
 
-#include <map>
 #include <string>
 #include <fmt/core.h>
 
@@ -17,6 +16,10 @@ namespace ForeignDB
     void bind_method(const std::string& class_name, bool is_static, const std::string& signature, WrenForeignMethodFn method);
     void unbind_method(const std::string& key);
     WrenForeignMethodFn get_method(const std::string& class_name, bool is_static, const std::string& signature);
+
+    void bind_class_methods(const std::string& class_name, WrenForeignClassMethods class_method);
+    void unbind_class_methods(const std::string& key);
+    WrenForeignClassMethods get_class_methods(const std::string& class_name);
 } // namespace ForeignDB
 
 #endif//_FOREIGN_DB_HPP_

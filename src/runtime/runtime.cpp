@@ -87,3 +87,6 @@ WrenForeignMethodFn bindForeignMethodFn(
     return ForeignDB::get_method(className, isStatic, signature);
 }
 
+WrenForeignClassMethods bindForeignClassFn(WrenVM *vm, const char *module, const char *className){
+    return ForeignDB::get_class_methods(className);
+}
