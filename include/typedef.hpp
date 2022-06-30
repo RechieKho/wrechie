@@ -36,4 +36,12 @@
     #endif
 #endif
 
+#ifndef STR_ONTO_HEAP
+// STR_ONTO_HEAP(char *dest, std::string src)
+#define STR_ONTO_HEAP(dest, src){ \
+    dest = (char *)malloc(sizeof(char) * (src.length() + 1)); \
+    strcpy(dest, src.c_str()); \
+}
+#endif//STR_ONTO_HEAP
+
 #endif//_TYPEDEF_HPP_
