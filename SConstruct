@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
 from SCons.Script import *
+from builders import wrenfile_builder, wrenfile_header_builder
 
 OUTPUT_DIR = "#dist"
+WRENFILES_DIR = "#wrenfiles"
+GEN_DIR = "#gen"
+GEN_WRENFILES_DIR = f"{GEN_DIR}/wrenfiles"
+SRC_DIR = "#src"
+INC_DIR = "#include"
 
 ## Configure Options -->
 env = Environment()
@@ -22,8 +28,6 @@ unknowns = opts.UnknownVariables()
 if unknowns:
     print("WARNING: Unknown variables are ignored: " + unknowns)
 ## Configure Options <--
-
-
 
 ## Configure Environment -->
 if env["compiledb"]:
@@ -102,9 +106,31 @@ else:
     
 
 
-env.Append(CPPPATH = Dir("#include"), LIBS=builtin_libs)
+env.Append(
+    CPPPATH = [Dir(INC_DIR), Dir(GEN_DIR)],
+    LIBS=builtin_libs,
+    BUILDERS = {
+        "WrenFile": wrenfile_builder,
+        "WrenFileHeader": wrenfile_header_builder
+    }
+)
+
+wrenfile_source = []
+for root, dirnames, filenames in os.walk(Dir(WRENFILES_DIR).abspath):
+    wrenfile_source += Glob(os.path.join(root, "*.wren"))
+wrenfile_target = [File(f"{GEN_WRENFILES_DIR}/{os.path.basename(file.path)}.inc.hpp") for file in wrenfile_source]
+
+wrenfiles = env.WrenFile(wrenfile_target, wrenfile_source)
+wrenfile_header = env.WrenFileHeader(
+    File(f"{GEN_WRENFILES_DIR}/wrenfiles.hpp"),
+    wrenfiles
+)
+
+
 wrench = env.Program(File(f"{OUTPUT_DIR}/wrench"), 
-    [Glob(os.path.join(root, "*.cpp")) for root, dirnames, filenames in os.walk('src')]
+    [Glob(os.path.join(root, "*.cpp")) for root, dirnames, filenames in os.walk(Dir(SRC_DIR).abspath)]
 )
 
 env.Depends(wrench, builtin_libs)
+env.Depends(wrench, wrenfile_header)
+env.Depends(wrenfile_header, wrenfiles)

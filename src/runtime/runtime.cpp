@@ -8,6 +8,7 @@
 #include "filesystem.hpp"
 #include "modules/foreign_db.hpp"
 #include "runtime.hpp"
+#include "modules/wrenfile_db.hpp"
 
 void writeFn(WrenVM* vm, const char* text){
     fmt::print(text);
@@ -46,12 +47,15 @@ const char *resolveModuleFn(WrenVM *vm, const char *importer, const char *name){
         return c_module_path;
     } else {
         // package import
-        ERR_MSG("Package import haven't implement yet.");
-        return NULL;
+        std::string package_name = "*";
+        package_name += name;
+        char *c_package_name = (char *) malloc(sizeof(char) * (package_name.length() + 1));
+        strcpy(c_package_name, package_name.c_str());
+        return c_package_name; 
     }
 }
 
-static void loadModuleCompleteFn(WrenVM *vm, const char *name, WrenLoadModuleResult result){
+static void loadRelativeCompleteFn(WrenVM *vm, const char *name, WrenLoadModuleResult result){
     // set cwd back to importer's working directory
     ((RuntimeState *)wrenGetUserData(vm))->cwd = (const char *)result.userData;
     free(result.userData);
@@ -61,19 +65,27 @@ static void loadModuleCompleteFn(WrenVM *vm, const char *name, WrenLoadModuleRes
 WrenLoadModuleResult loadModuleFn(WrenVM *vm, const char *name){
     WrenLoadModuleResult res = {0};
     std::string source;
-    READ_FILE_RET(name, source, res);
-    char *c_source = (char*)malloc(sizeof(char) * (source.length() + 1));
-    strcpy(c_source, source.c_str());
-    res.source = c_source;
-    res.onComplete = loadModuleCompleteFn;
 
-    // userData in WrenLoadModuleResult is the importer's working directory
-    std::string& cwd = ((RuntimeState *)wrenGetUserData(vm))->cwd;
-    res.userData = malloc(sizeof(char) * (cwd.length() + 1));
-    strcpy((char *)res.userData, cwd.c_str());
+    if(*name == '*'){ // package import
+        const char *wrenfile = get_wrenfile(++name);
+        ERR_COND_RET_MSG(!wrenfile, res, fmt::format("Package '{}' is not found", name));
+        res.source = wrenfile;
+    } else { // relative import
+        READ_FILE_RET(name, source, res);
+        char *c_source = (char*)malloc(sizeof(char) * (source.length() + 1));
+        strcpy(c_source, source.c_str());
+        res.source = c_source;
+        res.onComplete = loadRelativeCompleteFn;
 
-    // set cwd to module's working directory
-    cwd = cpppath::dirname(name);
+        // userData in WrenLoadModuleResult is the importer's working directory
+        std::string& cwd = ((RuntimeState *)wrenGetUserData(vm))->cwd;
+        res.userData = malloc(sizeof(char) * (cwd.length() + 1));
+        strcpy((char *)res.userData, cwd.c_str());
+
+        // set cwd to module's working directory
+        cwd = cpppath::dirname(name);
+    }
+
     return res;
 }
 

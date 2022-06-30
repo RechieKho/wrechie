@@ -297,3 +297,6 @@ $RECYCLE.BIN/
 
 # output file
 dist/
+
+# generated files directory
+gen/
