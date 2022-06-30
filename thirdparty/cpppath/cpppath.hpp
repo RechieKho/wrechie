@@ -11,7 +11,7 @@
 #include <vector>
 #include <fstream>
 
-#if defined WIN32 || defined _WIN32
+#if defined(WIN32) || defined(WIN64) || defined(_MSC_VER) || defined(_WIN32) || defined(__CYGWIN__)
     #include <direct.h>
     #define GetCurrentDir _getcwd
 #else
@@ -34,7 +34,7 @@
      CPPPATH_VERSION_PATCH == z)
 
 #ifndef CPPPATH_SEP
-    #if defined WIN32 || defined _WIN32
+    #if defined(WIN32) || defined(WIN64) || defined(_MSC_VER) || defined(_WIN32) || defined(__CYGWIN__)
         #define CPPPATH_SEP "\\"
     #else
         #define CPPPATH_SEP "/"

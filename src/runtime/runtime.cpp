@@ -9,6 +9,7 @@
 #include "modules/foreign_db.hpp"
 #include "runtime.hpp"
 #include "modules/wrenfile_db.hpp"
+#include "typedef.hpp"
 
 void writeFn(WrenVM* vm, const char* text){
     fmt::print(text);
@@ -32,7 +33,7 @@ const char *resolveModuleFn(WrenVM *vm, const char *importer, const char *name){
     if(!strncmp(name, "./", 2) || !strncmp(name, "../", 3)){
         // relative import
         std::string module_path = std::move(cpppath::dirname(importer));
-#ifdef _MSC_VER
+#if _PLATFORM_ == _PLATFORM_WIN_
         std::string request_str(name);
         std::replace(request_str.begin(), request_str.end(), '/', '\\');
         module_path += CPPPATH_SEP + request_str;
