@@ -9,7 +9,6 @@ It currently packed with features such as:
 - built-in package import (`import "package"`)
 - C library loader (`Lib.load("m")`)
 
-Check out documentation [here](https://rechiekho.github.io/wrench/)
 
 ## Running wren on wrench
 To run a wren script, call `path/to/wrench path/to/script.wren` in your terminal to run `script.wren`.
