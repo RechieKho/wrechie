@@ -1,18 +1,18 @@
 # Getting started
 
 ## Compiling `wrench`
-To get the source of `wrench`...
+To get the source of `wrench`,
 ```sh
 git clone https://github.com/RechieKho/wrench.git
 ```
-...and the source will be in the folder `wrench/` located in where you execute the `git` command.
+And the source will be in the folder `wrench/` located in where you execute the `git` command.
 
-Then, just...
+Then, compile it.
 ```sh
 cd wrench/
 scons
 ```
-...and you should have `wrench` living inside of `dist/` folder.
+And you should have `wrench` living inside of `dist/` folder.
 
 
 ## Your first wren script
@@ -87,7 +87,7 @@ Save it in `greeter.wren`. Now, you just need to compile `wrench` again and it w
 To test whether is it working, let's write a test script.
 ```wren
 # test.wren
-import "greeter` for Greeter
+import "greeter" for Greeter
 Greeter.sayHello()
 ```
 Save it in `test.wren`. Now, run the script and it should work.
