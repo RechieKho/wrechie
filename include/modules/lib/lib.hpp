@@ -3,7 +3,7 @@
 
 #include <wren.hpp>
 
-void load(WrenVM *vm); // ~Lib:load(name,path)
-void unload(WrenVM *vm); // ~Lib:unload(name)
+void load(WrenVM *vm);    // ~Lib:load(name,path)
+void unload(WrenVM *vm);  // ~Lib:unload(name)
 
-#endif//_LIB_HPP_
+#endif  //_LIB_HPP_

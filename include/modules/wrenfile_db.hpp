@@ -3,7 +3,6 @@
 
 #include <string>
 
+const char* get_wrenfile(const std::string& name);
 
-const char *get_wrenfile(const std::string& name);
-
-#endif//_WRENFILE_DB_HPP_
+#endif  //_WRENFILE_DB_HPP_

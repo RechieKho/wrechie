@@ -5,7 +5,7 @@
 
 /* Load
 @desc
-    This function will be called when the shared library 
+    This function will be called when the shared library
     is loaded into wren with [Lib.load()] method.
 @return
     bool success
@@ -23,10 +23,8 @@
     const std::string& c_func_symbol
 */
 typedef void (*WrenchBindForeignMethodFn)(
-    const std::string& class_name,
-    bool is_static, 
-    const std::string& wren_method_signature, 
-    const std::string& c_func_symbol);
+    const std::string& class_name, bool is_static,
+    const std::string& wren_method_signature, const std::string& c_func_symbol);
 
 /* WrenchBindClassMethodsFn
 @noreturn
@@ -36,9 +34,7 @@ typedef void (*WrenchBindForeignMethodFn)(
     const std::string& finalizer_func_symbol
 */
 typedef void (*WrenchBindClassMethodsFn)(
-    const std::string& class_name, 
-    const std::string& allocator_func_symbol, 
+    const std::string& class_name, const std::string& allocator_func_symbol,
     const std::string& finalizer_func_symbol);
 
-
-#endif//_WRENCH_DYLIB_H_
+#endif  //_WRENCH_DYLIB_H_
