@@ -127,10 +127,10 @@ wrenfile_header = env.WrenFileHeader(
 )
 
 
-wrench = env.Program(File(f"{OUTPUT_DIR}/wrench"), 
+wrechie = env.Program(File(f"{OUTPUT_DIR}/wrechie"), 
     [Glob(os.path.join(root, "*.cpp")) for root, dirnames, filenames in os.walk(Dir(SRC_DIR).abspath)]
 )
 
-env.Depends(wrench, builtin_libs)
-env.Depends(wrench, wrenfile_header)
+env.Depends(wrechie, builtin_libs)
+env.Depends(wrechie, wrenfile_header)
 env.Depends(wrenfile_header, wrenfiles)

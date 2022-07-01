@@ -1,18 +1,18 @@
 # Getting started
 
-## Compiling `wrench`
-To get the source of `wrench`,
+## Compiling `wrechie`
+To get the source of `wrechie`,
 ```sh
-git clone https://github.com/RechieKho/wrench.git
+git clone https://github.com/RechieKho/wrechie.git
 ```
-And the source will be in the folder `wrench/` located in where you execute the `git` command.
+And the source will be in the folder `wrechie/` located in where you execute the `git` command.
 
 Then, compile it.
 ```sh
-cd wrench/
+cd wrechie/
 scons
 ```
-And you should have `wrench` living inside of `dist/` folder.
+And you should have `wrechie` living inside of `dist/` folder.
 
 
 ## Your first wren script
@@ -21,14 +21,14 @@ Here is a very basic hello world in [wren].
 # hello_world.wren
 System.print("Hello world!")
 ```
-Save it in `hello_world.wren` and run the script by calling `wrench hello_world.wren`. 
+Save it in `hello_world.wren` and run the script by calling `wrechie hello_world.wren`. 
 
-> **NOTE**: If you haven't put `wrench` onto your `PATH` environment variable, then you should give the full path of `wrench` to the terminal, such as `path/to/wrench hello_world.wren`
+> **NOTE**: If you haven't put `wrechie` onto your `PATH` environment variable, then you should give the full path of `wrechie` to the terminal, such as `path/to/wrechie hello_world.wren`
 
 And you run your first script! Yay! It is *advisable* to read about the [wren] scripting language before going any futher as we won't be discussing about about to code in [wren].
 
 ## Importing stuff
-Importing is cool in general as it makes your project modular. There are two type of import in `wrench`:
+Importing is cool in general as it makes your project modular. There are two type of import in `wrechie`:
 
 - Relative import
 - Package import
@@ -62,16 +62,16 @@ import "path" for Path
 ```
 
 ## Write your own build-in package
-To write your own build-in package, you'll need to know how to [compile `wrench` from source](#compiling-wrench).
+To write your own build-in package, you'll need to know how to [compile `wrechie` from source](#compiling-wrechie).
 
-Get into `wrench` source code. Then, you'll be overwhelmed by lots of folders. But here, we'll be only focusing on the `wrenfiles/` folder. Every single [wren] script in this folder will be packed into `wrench` as built-in package.
+Get into `wrechie` source code. Then, you'll be overwhelmed by lots of folders. But here, we'll be only focusing on the `wrenfiles/` folder. Every single [wren] script in this folder will be packed into `wrechie` as built-in package.
 
 **The rules:**
 
 - The name of the [wren] script will be the package name, so *choose it wisely*.
 - *Relative imports are only for people who know what they are doing* as it won't work as intended.
 
-> **What happens to Relative import here?** Well, all the script in `wrenfiles/` will get packed into `wrench` and they are not living in a directory. When you do relative import in built-in packages, it will instead *import scripts relative to the script that imports the built-in package*
+> **What happens to Relative import here?** Well, all the script in `wrenfiles/` will get packed into `wrechie` and they are not living in a directory. When you do relative import in built-in packages, it will instead *import scripts relative to the script that imports the built-in package*
 
 Here we'll write a `Greeter` class that greet us.
 ```wren
@@ -82,7 +82,7 @@ class Greeter{
     }
 }
 ```
-Save it in `greeter.wren`. Now, you just need to compile `wrench` again and it will be packed into `wrench` automatically. 
+Save it in `greeter.wren`. Now, you just need to compile `wrechie` again and it will be packed into `wrechie` automatically. 
 
 To test whether is it working, let's write a test script.
 ```wren
@@ -92,7 +92,7 @@ Greeter.sayHello()
 ```
 Save it in `test.wren`. Now, run the script and it should work.
 ```sh
-$ ./dist/wrench test.wren
+$ ./dist/wrechie test.wren
 Hello world
 ```
 

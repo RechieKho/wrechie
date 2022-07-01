@@ -16,7 +16,7 @@
 
 int main(int argc, const char *argv[]) {
   // Options -->
-  cxxopts::Options opts("wrench",
+  cxxopts::Options opts("wrechie",
                         "A wren runtime packed with package manager.");
   opts.add_options()("h, help", "Print usage.")(
       "i, input", "Path to input wren script.", cxxopts::value<std::string>())(
