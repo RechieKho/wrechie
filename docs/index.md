@@ -5,7 +5,7 @@ In future, there will be a built-in package manager.
 
 It currently packed with features such as:
 
-- relative import (`import "./module.wren"`)
+- relative import (`import "./module"`)
 - built-in package import (`import "package"`)
 - C library loader (`Lib.load("m")`)
 

@@ -46,10 +46,10 @@ src\
 
 To import `module.wren` from `main.wren`, in `main.wren`, you just need to type this out:
 ```wren
-import "./module.wren" for Something
+import "./module" for Something
 ```
 
-the path given to the import statment must start with either `./` or `../`. The path given should be in unix-style path, which mean using `/` instead of `\` for directory seperator (even if you are in windows).
+the path given to the import statment must start with either `./` or `../`. The path given should be in unix-style path, which mean using `/` instead of `\` for directory seperator (even if you are in windows). The extension (`.wren`) is automatically appended.
 
 
 ### Package import

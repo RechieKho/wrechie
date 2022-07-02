@@ -43,21 +43,21 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
 #else
     module_path += CPPPATH_SEP + std::string(name);
 #endif
-    module_path = std::move(cpppath::normpath(module_path));
+    module_path = cpppath::normpath(module_path) + ".wren";
     char resolved_module_path[MAX_PATH_LEN];
     GET_REAL_PATH_RET(module_path.c_str(), resolved_module_path, NULL);
-    char *c_module_path =
-        (char *)malloc(sizeof(char) * (module_path.length() + 1));
-    strcpy(c_module_path, resolved_module_path);
-    return c_module_path;
+    char *resolved_module_path_on_heap =
+        (char *)malloc(sizeof(char) * MAX_PATH_LEN);
+    strcpy(resolved_module_path_on_heap, resolved_module_path);
+    return resolved_module_path_on_heap;
   } else {
     // package import
     std::string package_name = "*";
     package_name += name;
-    char *c_package_name =
+    char *package_name_no_heap =
         (char *)malloc(sizeof(char) * (package_name.length() + 1));
-    strcpy(c_package_name, package_name.c_str());
-    return c_package_name;
+    strcpy(package_name_no_heap, package_name.c_str());
+    return package_name_no_heap;
   }
 }
 
@@ -80,9 +80,9 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
     res.source = wrenfile;
   } else {  // relative import
     READ_FILE_RET(name, source, res);
-    char *c_source = (char *)malloc(sizeof(char) * (source.length() + 1));
-    strcpy(c_source, source.c_str());
-    res.source = c_source;
+    char *source_on_heap = (char *)malloc(sizeof(char) * (source.length() + 1));
+    strcpy(source_on_heap, source.c_str());
+    res.source = source_on_heap;
     res.onComplete = load_relative_complete_fn;
 
     // userData in WrenLoadModuleResult is the importer's working directory
