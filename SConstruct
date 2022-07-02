@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from nis import match
 from SCons.Script import *
 from builders import wrenfile_builder, wrenfile_header_builder
 
