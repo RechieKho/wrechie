@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 #include <limits.h>
 #include <string.h>
+#include <algorithm>
 
 #include <cpppath.hpp>
 
