@@ -22,7 +22,7 @@ WrenForeignClassMethods bind_foreign_class_fn(WrenVM *vm, const char *module,
 
 #define WREN_SLOT_SIZE 10
 
-#define GET_WREN_VM(ret)                                 \
+#define NEW_WREN_VM(ret)                                 \
   {                                                      \
     WrenConfiguration config;                            \
     wrenInitConfiguration(&config);                      \
@@ -32,9 +32,17 @@ WrenForeignClassMethods bind_foreign_class_fn(WrenVM *vm, const char *module,
     config.loadModuleFn = load_module_fn;                \
     config.bindForeignMethodFn = bind_foreign_method_fn; \
     config.bindForeignClassFn = bind_foreign_class_fn;   \
-    config.userData = malloc(sizeof(RuntimeState));      \
+    config.userData = new RuntimeState();                \
     ret = wrenNewVM(&config);                            \
     wrenEnsureSlots(ret, WREN_SLOT_SIZE);                \
+  }
+
+#define GET_RUNTIME_STATE(vm) ((RuntimeState *)wrenGetUserData(vm))
+
+#define FREE_WREN_VM(vm)          \
+  {                               \
+    delete GET_RUNTIME_STATE(vm); \
+    wrenFreeVM(vm);               \
   }
 
 #endif  //_RUNTIME_HPP_

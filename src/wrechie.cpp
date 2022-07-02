@@ -40,10 +40,10 @@ int main(int argc, const char *argv[]) {
   READ_APPEND_FILE_RET(script_path, file_content, 1);
 
   WrenVM *vm;
-  GET_WREN_VM(vm);
+  NEW_WREN_VM(vm);
   LOAD_MODULE;
-  ((RuntimeState *)wrenGetUserData(vm))->cwd = cpppath::dirname(script_path);
+  GET_RUNTIME_STATE(vm)->cwd = cpppath::dirname(script_path);
   WrenInterpretResult result =
       wrenInterpret(vm, script_path, file_content.c_str());
-  wrenFreeVM(vm);
+  FREE_WREN_VM(vm);
 }

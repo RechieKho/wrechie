@@ -64,7 +64,7 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
 static void load_relative_complete_fn(WrenVM *vm, const char *name,
                                       WrenLoadModuleResult result) {
   // set cwd back to importer's working directory
-  ((RuntimeState *)wrenGetUserData(vm))->cwd = (const char *)result.userData;
+  GET_RUNTIME_STATE(vm)->cwd = (const char *)result.userData;
   free(result.userData);
   free((void *)result.source);
 }
@@ -86,7 +86,7 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
     res.onComplete = load_relative_complete_fn;
 
     // userData in WrenLoadModuleResult is the importer's working directory
-    std::string &cwd = ((RuntimeState *)wrenGetUserData(vm))->cwd;
+    std::string &cwd = GET_RUNTIME_STATE(vm)->cwd;
     res.userData = malloc(sizeof(char) * (cwd.length() + 1));
     strcpy((char *)res.userData, cwd.c_str());
 

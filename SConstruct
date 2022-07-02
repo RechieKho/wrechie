@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from nis import match
 from SCons.Script import *
 from builders import wrenfile_builder, wrenfile_header_builder
 
@@ -13,6 +14,7 @@ INC_DIR = "#include"
 ## Configure Options -->
 env = Environment()
 opts = Variables()
+opts.Add(EnumVariable("mode", "release or debug mode", "debug", ("release", "debug"), ignorecase=2))
 opts.Add(BoolVariable("compiledb", "Generate `compile_commands.json` for external editor", False))
 opts.Add(BoolVariable("builtin_wren", "Use builtin wren", True))
 opts.Add(BoolVariable("builtin_fmt", "Use builtin fmt", True))
@@ -30,6 +32,16 @@ if unknowns:
 ## Configure Options <--
 
 ## Configure Environment -->
+# No switch case? :(
+if env["mode"] == "debug":
+    env.Append(
+        CXXFLAGS = "-g -O0"
+        )
+elif env["mode"] == "release":
+    env.Append(
+        CXXFLAGS = "-02"
+    )
+
 if env["compiledb"]:
     from SCons import __version__ as scons_raw_version
     scons_ver = env._get_major_minor_revision(scons_raw_version)
