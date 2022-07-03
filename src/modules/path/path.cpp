@@ -7,6 +7,7 @@
 
 #include "helper.hpp"
 #include "log.hpp"
+#include "runtime.hpp"
 #include "typedef.hpp"
 
 void sep(WrenVM *vm) { wrenSetSlotString(vm, 0, CPPPATH_SEP); }
@@ -88,5 +89,3 @@ void exists(WrenVM *vm) {
   const char *path = wrenGetSlotString(vm, 1);
   wrenSetSlotBool(vm, 0, cpppath::exists(path));
 }
-
-void curdir(WrenVM *vm) { wrenSetSlotString(vm, 0, cpppath::curdir().c_str()); }

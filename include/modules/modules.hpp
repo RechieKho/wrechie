@@ -20,7 +20,6 @@
     ForeignDB::bind_method("Path", true, "commonprefix(_)", commonprefix);   \
     ForeignDB::bind_method("Path", true, "commondirname(_)", commondirname); \
     ForeignDB::bind_method("Path", true, "exists(_)", exists);               \
-    ForeignDB::bind_method("Path", true, "curdir", curdir);                  \
                                                                              \
     ForeignDB::bind_method("Lib", true, "load(_,_)", load);                  \
     ForeignDB::bind_method("Lib", true, "unload(_)", unload);                \

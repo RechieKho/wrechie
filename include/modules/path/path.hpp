@@ -16,6 +16,5 @@ void normpath(WrenVM *vm);       // ~Path:normpath()
 void commonprefix(WrenVM *vm);   // ~Path:commonprefix(_)
 void commondirname(WrenVM *vm);  // ~Path:commondirname(_)
 void exists(WrenVM *vm);         // ~Path:exists(_)
-void curdir(WrenVM *vm);         // ~Path:curdir
 
 #endif

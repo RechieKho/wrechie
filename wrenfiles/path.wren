@@ -13,6 +13,5 @@ class Path {
     foreign static commonprefix(list)
     foreign static commondirname(list)
     foreign static exists(path)
-    foreign static curdir
 }
 
