@@ -64,3 +64,29 @@ void select(WrenVM *vm) {
   const int end = wrenGetSlotDouble(vm, 3);
   wrenSetSlotString(vm, 0, cpppath::select(path, begin, end).c_str());
 }
+
+void normpath(WrenVM *vm) {
+  const char *path = wrenGetSlotString(vm, 1);
+  wrenSetSlotString(vm, 0, cpppath::normpath(path).c_str());
+}
+
+void commonprefix(WrenVM *vm) {
+  std::vector<std::string> paths;
+  WREN_LIST_TO_VECTOR(vm, wrenGetSlotString, 1, 2, WREN_TYPE_STRING, paths,
+                      3, );
+  wrenSetSlotString(vm, 0, cpppath::commonprefix(paths).c_str());
+}
+
+void commondirname(WrenVM *vm) {
+  std::vector<std::string> paths;
+  WREN_LIST_TO_VECTOR(vm, wrenGetSlotString, 1, 2, WREN_TYPE_STRING, paths,
+                      3, );
+  wrenSetSlotString(vm, 0, cpppath::commondirname(paths).c_str());
+}
+
+void exists(WrenVM *vm) {
+  const char *path = wrenGetSlotString(vm, 1);
+  wrenSetSlotBool(vm, 0, cpppath::exists(path));
+}
+
+void curdir(WrenVM *vm) { wrenSetSlotString(vm, 0, cpppath::curdir().c_str()); }

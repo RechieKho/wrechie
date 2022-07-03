@@ -9,5 +9,10 @@ class Path {
     foreign static join(list)
     foreign static select(path, begin, end)
     static select(path, begin){ Path.select(path, begin, 0) }
+    foreign static normpath(path)
+    foreign static commonprefix(list)
+    foreign static commondirname(list)
+    foreign static exists(path)
+    foreign static curdir
 }
 
