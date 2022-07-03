@@ -5,7 +5,7 @@
 #include <wren.hpp>
 
 struct RuntimeState {
-  std::string cwd;  // current working directory
+  std::string csd;  // current script directory
 };
 
 void write_fn(WrenVM *vm, const char *text);

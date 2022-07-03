@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
   WrenVM *vm;
   NEW_WREN_VM(vm);
   LOAD_MODULE;
-  GET_RUNTIME_STATE(vm)->cwd = cpppath::dirname(script_path);
+  GET_RUNTIME_STATE(vm)->csd = cpppath::dirname(script_path);
   WrenInterpretResult result =
       wrenInterpret(vm, script_path, file_content.c_str());
   FREE_WREN_VM(vm);
