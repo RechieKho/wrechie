@@ -2,5 +2,9 @@ site_name: Wrechie Documentations
 site_url: https://rechiekho.github.io/wrechie/
 nav: 
   - Home: index.md
-  - Getting Started: getting_started.md
-theme: readthedocs
+  - User Manual: 
+    - Getting started: user_manual/getting_started.md
+    - Importing stuff: user_manual/import.md
+  - Wrechie API:
+    - Path: api/path.md
+theme: material

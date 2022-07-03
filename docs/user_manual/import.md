@@ -1,34 +1,5 @@
-# Getting started
-
-## Compiling `wrechie`
-To get the source of `wrechie`,
-```sh
-git clone https://github.com/RechieKho/wrechie.git
-```
-And the source will be in the folder `wrechie/` located in where you execute the `git` command.
-
-Then, compile it.
-```sh
-cd wrechie/
-scons
-```
-And you should have `wrechie` living inside of `dist/` folder.
-
-
-## Your first wren script
-Here is a very basic hello world in [wren].
-```wren
-# hello_world.wren
-System.print("Hello world!")
-```
-Save it in `hello_world.wren` and run the script by calling `wrechie hello_world.wren`. 
-
-> **NOTE**: If you haven't put `wrechie` onto your `PATH` environment variable, then you should give the full path of `wrechie` to the terminal, such as `path/to/wrechie hello_world.wren`
-
-And you run your first script! Yay! It is *advisable* to read about the [wren] scripting language before going any futher as we won't be discussing about about to code in [wren].
-
-## Importing stuff
-Importing is cool in general as it makes your project modular. There are two type of import in `wrechie`:
+# Importing stuff
+Importing makes your project modular. There are two type of import in `wrechie`:
 
 - Relative import
 - Package import
@@ -62,7 +33,7 @@ import "path" for Path
 ```
 
 ## Write your own build-in package
-To write your own build-in package, you'll need to know how to [compile `wrechie` from source](#compiling-wrechie).
+To write your own build-in package, you'll need to know how to [compile `wrechie` from source](./getting_started.md#compiling-wrechie).
 
 Get into `wrechie` source code. Then, you'll be overwhelmed by lots of folders. But here, we'll be only focusing on the `wrenfiles/` folder. Every single [wren] script in this folder will be packed into `wrechie` as built-in package.
 
@@ -95,6 +66,5 @@ Save it in `test.wren`. Now, run the script and it should work.
 $ ./dist/wrechie test.wren
 Hello world
 ```
-
 
 [wren]: https://wren.io/
