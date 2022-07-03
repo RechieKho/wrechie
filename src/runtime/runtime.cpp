@@ -4,11 +4,12 @@
 #include <fmt/core.h>
 #include <limits.h>
 #include <string.h>
-#include <algorithm>
 
+#include <algorithm>
 #include <cpppath.hpp>
 
 #include "filesystem.hpp"
+#include "helper.hpp"
 #include "log.hpp"
 #include "modules/foreign_db.hpp"
 #include "modules/wrenfile_db.hpp"
@@ -47,18 +48,16 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
     module_path = cpppath::normpath(module_path) + ".wren";
     char resolved_module_path[MAX_PATH_LEN];
     GET_REAL_PATH_RET(module_path.c_str(), resolved_module_path, NULL);
-    char *resolved_module_path_on_heap =
-        (char *)malloc(sizeof(char) * MAX_PATH_LEN);
-    strcpy(resolved_module_path_on_heap, resolved_module_path);
+    char *resolved_module_path_on_heap;
+    CSTR_ONTO_HEAP(resolved_module_path_on_heap, resolved_module_path);
     return resolved_module_path_on_heap;
   } else {
     // package import
     std::string package_name = "*";
     package_name += name;
-    char *package_name_no_heap =
-        (char *)malloc(sizeof(char) * (package_name.length() + 1));
-    strcpy(package_name_no_heap, package_name.c_str());
-    return package_name_no_heap;
+    char *package_name_on_heap;
+    STR_ONTO_HEAP(package_name_on_heap, package_name);
+    return package_name_on_heap;
   }
 }
 
@@ -81,15 +80,16 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
     res.source = wrenfile;
   } else {  // relative import
     READ_FILE_RET(name, source, res);
-    char *source_on_heap = (char *)malloc(sizeof(char) * (source.length() + 1));
-    strcpy(source_on_heap, source.c_str());
+    char *source_on_heap;
+    STR_ONTO_HEAP(source_on_heap, source);
     res.source = source_on_heap;
     res.onComplete = load_relative_complete_fn;
 
     // userData in WrenLoadModuleResult is the importer's working directory
     std::string &cwd = GET_RUNTIME_STATE(vm)->cwd;
-    res.userData = malloc(sizeof(char) * (cwd.length() + 1));
-    strcpy((char *)res.userData, cwd.c_str());
+    char *cwd_on_heap;
+    STR_ONTO_HEAP(cwd_on_heap, cwd);
+    res.userData = cwd_on_heap;
 
     // set cwd to module's working directory
     cwd = cpppath::dirname(name);

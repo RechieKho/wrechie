@@ -11,12 +11,27 @@
     char *dest - where to store the char pointer to heap.
     std::string src - string to copy from.
 */
-#define STR_ONTO_HEAP(dest, src)                              \
-  {                                                           \
-    dest = (char *)malloc(sizeof(char) * (src.length() + 1)); \
-    strcpy(dest, src.c_str());                                \
+#define STR_ONTO_HEAP(dest, src)                                    \
+  {                                                                 \
+    dest = (char *)malloc(sizeof(char) * (src.length() + 1));       \
+    ERR_COND_EXIT_MSG(!dest, 1, "Fail to store string onto heap."); \
+    strcpy(dest, src.c_str());                                      \
   }
 #endif  // STR_ONTO_HEAP
+
+#ifndef CSTR_ONTO_HEAP
+/*
+@param
+    char *dest - where to store the char pointer to heap.
+    char *src - string to copy from.
+*/
+#define CSTR_ONTO_HEAP(dest, src)                                   \
+  {                                                                 \
+    dest = (char *)malloc(sizeof(char) * (strlen(src) + 1));        \
+    ERR_COND_EXIT_MSG(!dest, 1, "Fail to store string onto heap."); \
+    strcpy(dest, src);                                              \
+  }
+#endif  // CSTR_ONTO_HEAP
 
 #ifndef WREN_ABORT
 /*
