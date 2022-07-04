@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
   GET_REAL_PATH_RET(parsed_opts["input"].as<std::string>().c_str(), script_path,
                     1);
   std::string file_content;
-  READ_APPEND_FILE_RET(script_path, file_content, 1);
+  READ_FILE_RET(script_path, file_content, 1);
 
   WrenVM *vm;
   NEW_WREN_VM(vm);

@@ -25,22 +25,6 @@
   }
 #endif  // READ_FILE_RET
 
-#ifndef READ_APPEND_FILE_RET
-#define READ_APPEND_FILE_RET(path, file_content, ret)                       \
-  {                                                                         \
-    struct stat path_stat;                                                  \
-    stat(path, &path_stat);                                                 \
-    ERR_COND_RET_MSG(!S_ISREG(path_stat.st_mode), ret,                      \
-                     fmt::format("'{}' is not a regular file.", path));     \
-    std::ifstream input_file(path);                                         \
-    ERR_COND_RET_MSG(!input_file.is_open(), ret,                            \
-                     fmt::format("Could not open the file '{}'.", path));   \
-    file_content +=                                                         \
-        std::move(std::string((std::istreambuf_iterator<char>(input_file)), \
-                              std::istreambuf_iterator<char>()));           \
-  }
-#endif  // READ_APPEND_FILE_RET
-
 #ifndef MAX_PATH_LEN
 #if defined WIN32
 #define MAX_PATH_LEN _MAX_PATH
