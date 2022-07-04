@@ -38,7 +38,7 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
   if (!strncmp(name, "./", 2) || !strncmp(name, "../", 3)) {
     // relative import
     std::string module_path = std::move(cpppath::dirname(importer));
-#if _PLATFORM_ == _PLATFORM_WIN_
+#if defined(_PLATFORM_WIN_)
     std::string request_str(name);
     std::replace(request_str.begin(), request_str.end(), '/', '\\');
     module_path += CPPPATH_SEP + request_str;

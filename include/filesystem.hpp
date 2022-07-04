@@ -66,7 +66,7 @@
 #endif  // GET_REAL_PATH_RET
 
 #ifndef HOME_PATH
-#if _PLATFORM_ == _PLATFORM_WIN_
+#if defined(_PLATFORM_WIN_)
 #define HOME_PATH getenv("USERPROFILE")
 #else
 #define HOME_PATH getenv("HOME")
