@@ -2,7 +2,6 @@
 #define _MODULES_HPP_
 
 #include "foreign_db.hpp"
-#include "lib/lib.hpp"
 #include "path/path.hpp"
 
 #define LOAD_MODULE                                                          \
@@ -20,9 +19,6 @@
     ForeignDB::bind_method("Path", true, "commonprefix(_)", commonprefix);   \
     ForeignDB::bind_method("Path", true, "commondirname(_)", commondirname); \
     ForeignDB::bind_method("Path", true, "exists(_)", exists);               \
-                                                                             \
-    ForeignDB::bind_method("Lib", true, "load(_,_)", load);                  \
-    ForeignDB::bind_method("Lib", true, "unload(_)", unload);                \
   }
 
 #endif  //_MODULES_HPP_

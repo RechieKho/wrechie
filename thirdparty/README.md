@@ -37,14 +37,6 @@ extracted files: `src/format.cc`, `src/os.cc` and `include/fmt/`
 It is a header-only library. Extract all the header files.
 
 
-## dylib
-- Upstream: https://github.com/martin-olivier/dylib
-- Version: 2.0.0 (657cd9f583dbaf5513075a6a0c0a46ebe09cefcd, 2022)
-- License: MIT
-
-It is a header-only library. Extract all the header files.
-
-
 ## cpppath
 - Upstream: https://github.com/tdegeus/cpppath
 - Version: git (4b55179030f324f58f6f5d7041b0109a4ba1586a, 2020)
@@ -59,3 +51,22 @@ Add `inline` to `all_equal` function on line `414` to fix multiple definition er
 - Version: 1.7.15 (d348621ca93571343a56862df7de4ff3bc9b5667, 2021)
 - License: MIT
 
+
+## miniz
+- Upstream: https://github.com/richgel999/miniz
+- Version: 2.2.0 (cb97387d20909c0a4728972fd0f19bfacd083c42, 2021)
+- License: MIT
+
+
+## elfio
+- Upstream: https://github.com/serge1/ELFIO
+- Version: 3.10 (722077d4f79b2c1de624ba380644b507def9ea53, 2022)
+- License: MIT
+
+This is a header-only library.
+
+
+## whereami
+- Upstream: https://github.com/gpakosz/whereami
+- Version: git (ba364cd54fd431c76c045393b6522b4bff547f50, 2018)
+- License: MIT / WTFPL

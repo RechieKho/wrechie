@@ -1,11 +1,17 @@
 #ifndef _RUNTIME_HPP_
 #define _RUNTIME_HPP_
 
+#include <miniz.h>
+
 #include <string>
 #include <wren.hpp>
 
+#include "fs/fsutils.hpp"
+#include "fs/zip.hpp"
+
 struct RuntimeState {
-  std::string csd;  // current script directory
+  const ZipReader *project;  // pointer to the zip project, should be valid
+                             // across Wren VM lifetime, unhandled.
 };
 
 void write_fn(WrenVM *vm, const char *text);

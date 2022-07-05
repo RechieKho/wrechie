@@ -10,6 +10,21 @@ GEN_WRENFILES_DIR = f"{GEN_DIR}/wrenfiles"
 SRC_DIR = "#src"
 INC_DIR = "#include"
 
+if not (
+    # unix
+    sys.platform.startswith("linux")
+    or sys.platform.startswith("dragonfly")
+    or sys.platform.startswith("freebsd")
+    or sys.platform.startswith("netbsd")
+    or sys.platform.startswith("openbsd")
+
+    # win
+    or sys.platform == "win32"
+):
+    print("Your system is not supported.")
+    exit(1)
+    
+
 ## Configure Options -->
 env = Environment()
 opts = Variables()
@@ -20,8 +35,10 @@ opts.Add(BoolVariable("builtin_fmt", "Use builtin fmt", True))
 opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cpppath", "Use builtin cpppath", True))
-opts.Add(BoolVariable("builtin_dylib", "Use builtin dylib", True))
 opts.Add(BoolVariable("builtin_cjson", "Use builtin cjson", True))
+opts.Add(BoolVariable("builtin_miniz", "Use builtin miniz", True))
+opts.Add(BoolVariable("builtin_elfio", "Use builtin elfio (only for unix)", True))
+opts.Add(BoolVariable("builtin_whereami", "Use builtin whereami", True))
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
 
@@ -96,12 +113,6 @@ if env["builtin_cpppath"]:
         CPPPATH = [Dir("#thirdparty/cpppath")]
     )
 
-if env["builtin_dylib"]:
-    env.Append(
-        CPPPATH = [Dir("#thirdparty/dylib")],
-        LIBS = ["dl"]
-    )
-
 if env["builtin_cjson"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/cjson")],
@@ -109,10 +120,39 @@ if env["builtin_cjson"]:
 
     builtin_libs.append(env.StaticLibrary(
         File("#thirdparty/cjson/libcjson.a"),
-        File("#thirdparty/cjson/cJSON.c")
+        File("#thirdparty/cjson/cjson/cJSON.c")
     ))
 else:
     env.Append(LIBS=["cjson"])
+
+if env["builtin_miniz"]:
+    env.Append(
+        CPPPATH = [Dir("#thirdparty/miniz")],
+    )
+
+    builtin_libs.append(env.StaticLibrary(
+        File("#thirdparty/miniz/libminiz.a"),
+        File("#thirdparty/miniz/miniz.c")
+    ))
+else:
+    env.Append(LIBS=["miniz"])
+
+if env["builtin_elfio"]:
+    env.Append(
+        CPPPATH = [Dir("#thirdparty/elfio")]
+    )
+
+if env["builtin_whereami"]:
+    env.Append(
+        CPPPATH = [Dir("#thirdparty/whereami")]
+    )
+
+    builtin_libs.append(env.StaticLibrary(
+        File("#thirdparty/whereami/libwhereami.a"),
+        File("#thirdparty/whereami/whereami.c")
+    ))
+else:
+    env.Append(LIBS=["whereami"])
 ## Builtin Libs <--
     
 

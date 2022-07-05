@@ -5,8 +5,6 @@
      defined(_WIN32) || defined(__CYGWIN__)) &&               \
     !defined(_PLATFORM_WIN_)
 #define _PLATFORM_WIN_
-#elif defined(__APPLE__) && !defined(_PLATFORM_APPLE_)
-#define _PLATFORM_APPLE_
 #elif defined(__unix__) && !defined(_PLATFORM_UNIX_)
 #define _PLATFORM_UNIX_
 #endif
