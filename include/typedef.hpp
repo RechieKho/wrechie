@@ -1,6 +1,9 @@
 #ifndef _TYPEDEF_HPP_
 #define _TYPEDEF_HPP_
 
+// follows semantic versioning
+#define WRECHIE_VER "0.0.7"
+
 #if (defined(WIN32) || defined(WIN64) || defined(_MSC_VER) || \
      defined(_WIN32) || defined(__CYGWIN__)) &&               \
     !defined(_PLATFORM_WIN_)

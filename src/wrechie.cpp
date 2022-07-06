@@ -17,9 +17,6 @@
 #include "runtime.hpp"
 #include "typedef.hpp"
 
-// follows semantic versioning
-#define WRECHIE_VER "0.0.7"
-
 static const unsigned char magic_number[4] = {0xDE, 0xAD, 0x69, 0xAF};
 struct project_data {
   std::uint32_t magic;
