@@ -28,12 +28,12 @@
 #define ERR_EXIT_MSG(exit_code, msg) \
   {                                  \
     ERR_MSG(msg);                    \
-    exit(exit_code);                 \
+    std::exit(exit_code);            \
   }
 #define ERR_COND_EXIT_MSG(condition, exit_code, msg) \
   if (condition) {                                   \
     ERR_MSG(msg);                                    \
-    exit(exit_code);                                 \
+    std::exit(exit_code);                            \
   }
 // Error logging <--
 

@@ -29,14 +29,6 @@ extracted files: `src/vm/`, `src/optional/`, `src/include/*`
 extracted files: `src/format.cc`, `src/os.cc` and `include/fmt/`
 
 
-## cxxopts
-- Upstream: https://github.com/jarro2783/cxxopts
-- Version: 3.0.0 (c74846a891b3cc3bfa992d588b1295f528d43039, 2021)
-- License: MIT
-
-It is a header-only library. Extract all the header files.
-
-
 ## cpppath
 - Upstream: https://github.com/tdegeus/cpppath
 - Version: git (4b55179030f324f58f6f5d7041b0109a4ba1586a, 2020)

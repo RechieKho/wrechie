@@ -5,7 +5,6 @@
 #include <whereami.h>
 
 #include <cpppath.hpp>
-#include <cxxopts.hpp>
 #include <fstream>
 #include <wren.hpp>
 
@@ -40,28 +39,21 @@ int main(int argc, const char* argv[]) {
   std::uint64_t whole_file_size;
 
   if (!get_wrechie_size(wrechie_path, project_size, whole_file_size)) {
-    cxxopts::Options opts(
-        "wrechie",
-        fmt::format("wrechie version {}, a general purpose programming "
-                    "environment that runs wren.\n",
-                    WRECHIE_VER));
-    opts.add_options()("h, help", "Show help and quit.")(
-        "p, project", "Path to project (zip file).",
-        cxxopts::value<std::string>());
-    opts.parse_positional({"project"});
-    opts.custom_help("[-h]");
-    opts.positional_help("PROJECT_PATH");
-
-    cxxopts::ParseResult result = opts.parse(argc, argv);
-    if (result.count("help")) {
-      fmt::print(opts.help());
-      exit(OK);
+    ERR_COND_EXIT_MSG(argc > 2, TOO_MANY_ARGUMENTS, "Too many arguments.");
+    if (argc <= 1) {
+      fmt::print(
+          "{}\n{}\n",
+          fmt::format("wrechie version {}, a general purpose programming "
+                      "environment that runs wren.\n",
+                      WRECHIE_VER),
+          "    usage: wrechie PROJECT_PATH\n");
+      std::exit(TOO_FEW_ARGUMENTS);
+    } else {
+      char project_path[MAX_PATH_LEN];
+      GET_REAL_PATH_RET(argv[1], project_path, FAIL_TO_READ_FILE);
+      bundle_project(wrechie_path, project_path);
+      std::exit(OK);
     }
-
-    ERR_COND_EXIT_MSG(!result.count("project"), TOO_FEW_ARGUMENTS,
-                      "project path is not given.")
-    bundle_project(wrechie_path, result["project"].as<std::string>());
-    exit(OK);
   };
 
   ZipReader project(wrechie_path, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY,
@@ -107,8 +99,9 @@ static inline void bundle_project(const std::string& wrechie_path,
   mz_zip_archive zip = {0};
   ERR_COND_EXIT_MSG(
       !mz_zip_reader_init_file_v2(&zip, project_path.c_str(), 0, 0, 0),
-      WRONG_FILE_FORMAT,
-      fmt::format("Project must be a valid zip file.", project_path));
+      FAIL_TO_READ_FILE,
+      fmt::format("Project '{}' is not a valid zip file, {}.", project_path,
+                  mz_zip_get_error_string(mz_zip_get_last_error(&zip))));
   mz_zip_reader_end(&zip);
 
   // start file streams

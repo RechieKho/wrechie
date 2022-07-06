@@ -32,8 +32,6 @@ opts.Add(EnumVariable("mode", "release or debug mode", "debug", ("release", "deb
 opts.Add(BoolVariable("compiledb", "Generate `compile_commands.json` for external editor", False))
 opts.Add(BoolVariable("builtin_wren", "Use builtin wren", True))
 opts.Add(BoolVariable("builtin_fmt", "Use builtin fmt", True))
-opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
-opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cpppath", "Use builtin cpppath", True))
 opts.Add(BoolVariable("builtin_cjson", "Use builtin cjson", True))
 opts.Add(BoolVariable("builtin_miniz", "Use builtin miniz", True))
@@ -103,16 +101,11 @@ else:
     env.Append(LIBS=["fmt"])
 
 
-if env["builtin_cxxopts"]:
-    env.Append(
-        CPPPATH = [Dir("#thirdparty/cxxopts")]
-    )
-
-
 if env["builtin_cpppath"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/cpppath")]
     )
+
 
 if env["builtin_cjson"]:
     env.Append(
@@ -126,6 +119,7 @@ if env["builtin_cjson"]:
 else:
     env.Append(LIBS=["cjson"])
 
+
 if env["builtin_miniz"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/miniz")],
@@ -137,6 +131,7 @@ if env["builtin_miniz"]:
     ))
 else:
     env.Append(LIBS=["miniz"])
+
 
 if env["builtin_whereami"]:
     env.Append(
