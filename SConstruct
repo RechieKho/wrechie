@@ -37,9 +37,7 @@ opts.Add(BoolVariable("builtin_cxxopts", "Use builtin cxxopts", True))
 opts.Add(BoolVariable("builtin_cpppath", "Use builtin cpppath", True))
 opts.Add(BoolVariable("builtin_cjson", "Use builtin cjson", True))
 opts.Add(BoolVariable("builtin_miniz", "Use builtin miniz", True))
-opts.Add(BoolVariable("builtin_elfio", "Use builtin elfio (only for unix)", True))
 opts.Add(BoolVariable("builtin_whereami", "Use builtin whereami", True))
-opts.Add(BoolVariable("builtin_peparser", "Use builtin peparser", True))
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
 
@@ -140,11 +138,6 @@ if env["builtin_miniz"]:
 else:
     env.Append(LIBS=["miniz"])
 
-if env["builtin_elfio"]:
-    env.Append(
-        CPPPATH = [Dir("#thirdparty/elfio")]
-    )
-
 if env["builtin_whereami"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/whereami")]
@@ -156,21 +149,6 @@ if env["builtin_whereami"]:
     ))
 else:
     env.Append(LIBS=["whereami"])
-
-if env["builtin_peparser"]:
-    env.Append(
-        CPPPATH = [Dir("#thirdparty/pe-parse")]
-    )
-    env_peparse = env.Clone()
-    env_peparse.Append(
-        CXXFLAGS = "-fpermissive"
-    )
-    builtin_libs.append(env_peparse.StaticLibrary(
-        File("#thirdparty/pe-parse/libpeparse.a"),
-        Glob("#thirdparty/pe-parse/src/*.cpp")
-    ))
-else:
-    env.Append(LIBS=["pe-parse"])
 ## Builtin Libs <--
     
 
