@@ -45,7 +45,9 @@ Help(opts.GenerateHelpText(env))
 
 unknowns = opts.UnknownVariables()
 if unknowns:
-    print("WARNING: Unknown variables are ignored: " + unknowns)
+    print("WARNING: Unknown variables are ignored: ")
+    for key, value in unknowns.items():
+        print(f"\t{key} = {value}")
 ## Configure Options <--
 
 ## Configure Environment -->
@@ -56,7 +58,7 @@ if env["mode"] == "debug":
         )
 elif env["mode"] == "release":
     env.Append(
-        CXXFLAGS = "-02"
+        CXXFLAGS = "-O2"
     )
 
 if env["compiledb"]:
@@ -159,10 +161,13 @@ if env["builtin_peparser"]:
     env.Append(
         CPPPATH = [Dir("#thirdparty/pe-parse")]
     )
-
-    builtin_libs.append(env.StaticLibrary(
+    env_peparse = env.Clone()
+    env_peparse.Append(
+        CXXFLAGS = "-fpermissive"
+    )
+    builtin_libs.append(env_peparse.StaticLibrary(
         File("#thirdparty/pe-parse/libpeparse.a"),
-        Glob("#thirdparty/pe-parse/src/*.c")
+        Glob("#thirdparty/pe-parse/src/*.cpp")
     ))
 else:
     env.Append(LIBS=["pe-parse"])
