@@ -83,36 +83,22 @@ static inline size_t get_program_size(const std::string &path) {
 
 #elif defined(_PLATFORM_WIN_)
 /* Info about this:
-https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/pe-file-header-parser-in-c++#code
 https://stackoverflow.com/questions/34684660/how-to-determine-the-size-of-an-pe-executable-file-from-headers-and-or-footers
 */
-#include "Windows.h"
+#include <pe-parse/parse.h>
 static inline size_t get_program_size(const std::string &path) {
-  HANDLE program = CreateFileA(path.c_str(), GENERIC_ALL, FILE_SHARE_READ, NULL,
-                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  ERR_COND_EXIT_MSG(program == INVALID_HANDLE_VALUE, FAIL_TO_READ_FILE,
-                    fmt::format("Fail to load ELF header of '{}'", path));
-  size_t size;
-  GET_FILE_SIZE(path, size);
-  void *data = malloc(size);
-  DWORD byte_read;
-  ReadFile(program, data, size, &byte_read, NULL);
-
-  PIMAGE_DOS_HEADER dos_header = (PIMAGE_DOS_HEADER)data;
-  PIMAGES_NT_HEADERS image_NT_headers =
-      (PIMAGE_NT_HEADERS)((DWORD)data + dos_header->e_lfanew);
-
-  size_t program_size = image_NT_headers->OptionalHeader.SizeOfHeaders;
-
-  DWORD section_location =
-      (DWORD)imageNTHeaders + sizeof(DWORD) +
-      (DWORD)(sizeof(IMAGE_FILE_HEADER)) +
-      (DWORD)image_NT_headers->FileHeader.SizeOfOptionalHeader;
-
-  for (int i = 0; i < imageNTHeaders->FileHeader.NumberOfSections; i++) {
-    section_header = (PIMAGE_SECTION_HEADER)section_location;
-    program_size += section_header->SizeOfRawData;
-  }
+  peparse::parsed_pe *pe = peparse::ParsePEFromFile(path.c_str());
+  size_t size = pe->peHeader.nt.OptionalHeader.SizeOfHeaders;
+  peparse::IterSec(
+      pe,
+      [size](void *ptr, const peparse::VA &va, const std::string &str,
+             const peparse::image_section_header &section_header,
+             const peparse::bounded_buffer *b_buffer) {
+        size += section_header.SizeOfRawData;
+        return 0;
+      },
+      nullptr);
+  return size;
 }
 #endif
 // get_program_size() <--

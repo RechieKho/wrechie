@@ -39,6 +39,7 @@ opts.Add(BoolVariable("builtin_cjson", "Use builtin cjson", True))
 opts.Add(BoolVariable("builtin_miniz", "Use builtin miniz", True))
 opts.Add(BoolVariable("builtin_elfio", "Use builtin elfio (only for unix)", True))
 opts.Add(BoolVariable("builtin_whereami", "Use builtin whereami", True))
+opts.Add(BoolVariable("builtin_peparser", "Use builtin peparser", True))
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
 
@@ -153,6 +154,18 @@ if env["builtin_whereami"]:
     ))
 else:
     env.Append(LIBS=["whereami"])
+
+if env["builtin_peparser"]:
+    env.Append(
+        CPPPATH = [Dir("#thirdparty/pe-parse")]
+    )
+
+    builtin_libs.append(env.StaticLibrary(
+        File("#thirdparty/pe-parse/libpeparse.a"),
+        Glob("#thirdparty/pe-parse/src/*.c")
+    ))
+else:
+    env.Append(LIBS=["pe-parse"])
 ## Builtin Libs <--
     
 

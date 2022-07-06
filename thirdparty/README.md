@@ -70,3 +70,9 @@ This is a header-only library.
 - Upstream: https://github.com/gpakosz/whereami
 - Version: git (ba364cd54fd431c76c045393b6522b4bff547f50, 2018)
 - License: MIT / WTFPL
+
+
+## pe-parse
+- Upstream: https://github.com/trailofbits/pe-parse
+- Version: 2.0.0 (2a1aa79d0a8c59faa882a37605932348ef001331, 2022)
+- License: MIT
