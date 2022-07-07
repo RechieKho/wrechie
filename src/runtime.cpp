@@ -69,7 +69,10 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
                      fmt::format("Package '{}' is not found", name));
     res.source = wrenfile;
   } else {  // relative import
-    std::string source = GET_RUNTIME_STATE(vm)->project->get_file_content(name);
+    std::string err;
+    std::string source =
+        GET_RUNTIME_STATE(vm)->project->get_file_content(name, &err);
+    ERR_COND_RET_MSG(!err.empty(), res, err)
     char *source_on_heap;
     STR_ONTO_HEAP(source_on_heap, source);
     res.source = source_on_heap;

@@ -3,6 +3,8 @@
 
 #include <fmt/color.h>
 
+#include "err.hpp"
+
 #define LOG(msg) \
   fmt::print(fg(fmt::color::light_gray), fmt::format("{}\n", msg));
 
@@ -35,6 +37,15 @@
     ERR_MSG(msg);                                    \
     std::exit(exit_code);                            \
   }
+#define ERR_COND_EXIT_FAIL_TO_ALLOCATE_MEM(condition)   \
+  ERR_COND_EXIT_MSG(condition, FAIL_TO_ALLOCATE_MEMORY, \
+                    "Fail to allocate memory.");
+#define ERR_COND_EXIT_FAIL_TO_OPEN_FILE(condition, path) \
+  ERR_COND_EXIT_MSG(condition, FAIL_TO_OPEN_FILE,        \
+                    fmt::format("Could not read file '{}'.", path));
+#define ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(condition, path) \
+  ERR_COND_EXIT_MSG(condition, FAIL_TO_ALLOCATE_MEMORY,     \
+                    fmt::format("Fail to resolve path '{}'.", path));
 // Error logging <--
 
 #endif  //_LOG_HPP_  <--

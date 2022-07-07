@@ -36,19 +36,23 @@ int main(int argc, const char* argv[]) {
       std::exit(TOO_FEW_ARGUMENTS);
     } else {
       char project_path[MAX_PATH_LEN];
-      GET_REAL_PATH_RET(argv[1], project_path, FAIL_TO_READ_FILE);
+      ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
+          GET_REAL_PATH(argv[1], project_path) != project_path, argv[1]);
       bundle_project(wrechie_path, project_path);
       std::exit(OK);
     }
   };
 
-  ZipReader project(wrechie_path, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY,
-                    whole_file_size - project_size - sizeof(project_data),
-                    project_size);
+  std::string err_msg;
+  Zip project(wrechie_path, &err_msg,
+              whole_file_size - project_size - sizeof(project_data),
+              project_size, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY);
+  ERR_COND_EXIT_MSG(!err_msg.empty(), FAIL_TO_OPEN_FILE, err_msg);
 
   // Get main script -->
-  std::string main_source;
-  READ_FILE_FROM_ZIP(project, "main.wren", main_source, 1);
+  const std::string main_source =
+      project.get_file_content("main.wren", &err_msg);
+  ERR_COND_EXIT_MSG(!err_msg.empty(), FAIL_TO_OPEN_FILE, err_msg);
   // Get main script <--
 
   WrenVM* vm;

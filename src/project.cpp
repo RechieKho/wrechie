@@ -14,8 +14,7 @@ bool get_project_size_in_wrechie(const std::string& wrechie_path,
                                  size_t& project_size,
                                  size_t& whole_file_size) {
   std::ifstream wrechie(wrechie_path, std::ios::binary);
-  ERR_COND_EXIT_MSG(!wrechie.is_open(), FAIL_TO_READ_FILE,
-                    fmt::format("Could not open file '{}'.", wrechie_path));
+  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!wrechie.is_open(), wrechie_path);
   project_data data = {0};
   whole_file_size = wrechie.seekg(-(sizeof(project_data)), std::ios::end)
                         .read((char*)&data, sizeof(project_data))
@@ -31,29 +30,15 @@ bool get_project_size_in_wrechie(const std::string& wrechie_path,
 
 void bundle_project(const std::string& wrechie_path,
                     const std::string& project_path) {
-  // Check whether is it a zip
-  mz_zip_archive zip = {0};
-  ERR_COND_EXIT_MSG(
-      !mz_zip_reader_init_file_v2(&zip, project_path.c_str(), 0, 0, 0),
-      FAIL_TO_READ_FILE,
-      fmt::format("Project '{}' is not a valid zip file, {}.", project_path,
-                  mz_zip_get_error_string(mz_zip_get_last_error(&zip))));
-  mz_zip_reader_end(&zip);
-
   // start file streams
   std::ifstream project(project_path, std::ios::binary);
-  ERR_COND_EXIT_MSG(
-      !project.is_open(), FAIL_TO_READ_FILE,
-      fmt::format("Could not read from file '{}'.", project_path));
+  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!project.is_open(), project_path);
   std::ifstream wrechie(wrechie_path, std::ios::binary);
-  ERR_COND_EXIT_MSG(
-      !wrechie.is_open(), FAIL_TO_READ_FILE,
-      fmt::format("Could not read from file '{}'.", wrechie_path));
+  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!wrechie.is_open(), wrechie_path);
   std::string output_path =
       cpppath::join({cpppath::curdir(), cpppath::filebase(project_path)});
   std::ofstream output(output_path, std::ios::binary);
-  ERR_COND_EXIT_MSG(!output.is_open(), FAIL_TO_READ_FILE,
-                    fmt::format("Could not write to file '{}'.", output_path));
+  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!output.is_open(), output_path);
 
   // get project size in wrechie
   project_data data = {0};

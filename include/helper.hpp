@@ -15,8 +15,7 @@
 #define STR_ONTO_HEAP(dest, src)                              \
   {                                                           \
     dest = (char *)malloc(sizeof(char) * (src.length() + 1)); \
-    ERR_COND_EXIT_MSG(!dest, FAIL_TO_ALLOCATE_MEMORY,         \
-                      "Fail to store string onto heap.");     \
+    ERR_COND_EXIT_FAIL_TO_ALLOCATE_MEM(!dest);                \
     strcpy(dest, src.c_str());                                \
   }
 #endif  // STR_ONTO_HEAP
@@ -30,8 +29,7 @@
 #define CSTR_ONTO_HEAP(dest, src)                            \
   {                                                          \
     dest = (char *)malloc(sizeof(char) * (strlen(src) + 1)); \
-    ERR_COND_EXIT_MSG(!dest, FAIL_TO_ALLOCATE_MEMORY,        \
-                      "Fail to store string onto heap.");    \
+    ERR_COND_EXIT_FAIL_TO_ALLOCATE_MEM(!dest);               \
     strcpy(dest, src);                                       \
   }
 #endif  // CSTR_ONTO_HEAP

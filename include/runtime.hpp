@@ -10,8 +10,8 @@
 #include "fs/zip.hpp"
 
 struct RuntimeState {
-  const ZipReader *project;  // pointer to the zip project, should be valid
-                             // across Wren VM lifetime, unhandled.
+  Zip *project;  // pointer to the zip project, should be valid
+                 // across Wren VM lifetime, unhandled.
 };
 
 void write_fn(WrenVM *vm, const char *text);
