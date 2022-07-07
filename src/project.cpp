@@ -8,11 +8,11 @@
 #include "err.hpp"
 #include "log.hpp"
 
-static const unsigned char project_magic_number[4] = {0xDE, 0xAD, 0x69, 0xAF};
+static const magic_t project_magic_number = 3735944939;  // 0xDEADFEEB
 
 bool get_project_size_in_wrechie(const std::string& wrechie_path,
-                                 std::uint64_t& project_size,
-                                 std::uint64_t& whole_file_size) {
+                                 size_t& project_size,
+                                 size_t& whole_file_size) {
   std::ifstream wrechie(wrechie_path, std::ios::binary);
   ERR_COND_EXIT_MSG(!wrechie.is_open(), FAIL_TO_READ_FILE,
                     fmt::format("Could not open file '{}'.", wrechie_path));
@@ -21,7 +21,7 @@ bool get_project_size_in_wrechie(const std::string& wrechie_path,
                         .read((char*)&data, sizeof(project_data))
                         .tellg();
   wrechie.close();
-  if (!memcmp(&data.magic, project_magic_number, sizeof(std::uint32_t))) {
+  if (!memcmp(&data.magic, &project_magic_number, sizeof(magic_t))) {
     project_size = data.project_size;
     return true;
   }
@@ -55,16 +55,36 @@ void bundle_project(const std::string& wrechie_path,
   ERR_COND_EXIT_MSG(!output.is_open(), FAIL_TO_READ_FILE,
                     fmt::format("Could not write to file '{}'.", output_path));
 
-  // create magic
-  project_data data;
-  memcpy(&data.magic, project_magic_number, sizeof(std::uint32_t));
-  project.seekg(0, std::ios::end);
-  data.project_size = project.tellg();
+  // get project size in wrechie
+  project_data data = {0};
+  size_t whole_file_size;
+  whole_file_size = wrechie.seekg(-(sizeof(project_data)), std::ios::end)
+                        .read((char*)&data, sizeof(project_data))
+                        .tellg();
 
-  char c;
+  // create magic
+  project_data new_data;
+  memcpy(&new_data.magic, &project_magic_number, sizeof(size_t));
+  project.seekg(0, std::ios::end);
+  new_data.project_size = project.tellg();
+
+  size_t wrechie_size = whole_file_size;
+  if (!memcmp(&data.magic, &project_magic_number, sizeof(magic_t)))
+    wrechie_size -= (data.project_size + sizeof(project_data));
+  // read binary into buffer
+  char* binary = new char[wrechie_size + new_data.project_size];
   wrechie.seekg(0, std::ios::beg);
+  wrechie.read(binary, wrechie_size);
   project.seekg(0, std::ios::beg);
-  while (wrechie.get(c)) output << c;
-  while (project.get(c)) output << c;
-  for (size_t i = 0; i < sizeof(project_data); i++) output << ((char*)&data)[i];
+  project.read(binary + wrechie_size, new_data.project_size);
+
+  // write to output
+  output.write(binary, wrechie_size + new_data.project_size);
+  output.write((const char*)&new_data, sizeof(project_data));
+
+  // finishing
+  wrechie.close();
+  project.close();
+  output.close();
+  delete[] binary;
 }
