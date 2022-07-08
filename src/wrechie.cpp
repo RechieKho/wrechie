@@ -5,7 +5,7 @@
 #include <cpppath.hpp>
 #include <wren.hpp>
 
-#include "err.hpp"
+#include "exception.hpp"
 #include "fs/fsutils.hpp"
 #include "fs/zip.hpp"
 #include "log.hpp"
@@ -28,48 +28,53 @@ int main(int argc, const char* argv[]) {
     char target_wrechie_path[MAX_PATH_LEN];
     strcpy(target_wrechie_path, wrechie_path);
     switch (argc) {
-      case 1:
+      case 3:
+        try {
+          COND_THROW_EXC(!GET_REAL_PATH(argv[1], target_wrechie_path),
+                         FAIL_TO_RESOLVE_PATH,
+                         EXC_STR_FAIL_TO_RESOLVE_PATH(argv[1]));
+        } catch (const WrechieException& e) {
+          fmt::print(e.second);
+          return e.first;
+        }
+      case 2:
+        char project_path[MAX_PATH_LEN];
+        try {
+          COND_THROW_EXC(!GET_REAL_PATH(argv[argc - 1], project_path),
+                         FAIL_TO_RESOLVE_PATH,
+                         EXC_STR_FAIL_TO_RESOLVE_PATH(argv[argc - 1]));
+        } catch (const WrechieException& e) {
+          fmt::print(e.second);
+          return e.first;
+        }
+        bundle_project_in_dir(target_wrechie_path, project_path);
+        break;
+      default:
         fmt::print(
-            "{}\n{}\n",
+            "{}\n    {}\n",
             fmt::format("wrechie version {}, a general purpose programming "
                         "environment that runs wren.\n",
                         WRECHIE_VER),
-            "    usage: wrechie [WRECHIE_PATH] PROJECT_PATH\n");
-        std::exit(TOO_FEW_ARGUMENTS);
-        break;
-      case 3:
-        ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
-            !GET_REAL_PATH(argv[1], target_wrechie_path), argv[1]);
-      case 2:
-        char project_path[MAX_PATH_LEN];
-        ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
-            !GET_REAL_PATH(argv[argc - 1], project_path), argv[argc - 1]);
-        bundle_project_in_dir(target_wrechie_path, project_path);
-        std::exit(OK);
-        break;
-      default:
-        ERR_EXIT_MSG(TOO_MANY_ARGUMENTS, "Too many arguments.");
-        break;
+            "usage: wrechie [WRECHIE_PATH] PROJECT_PATH\n");
+        return INVALID_COMMAND_LINE_INPUT;
     }
+    return OK;
   };
 
-  std::string err_msg;
-  ZipReader project(wrechie_path, &err_msg,
-                    whole_file_size - project_size - sizeof(project_data),
-                    project_size, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY);
-  ERR_COND_EXIT_MSG(!err_msg.empty(), FAIL_TO_OPEN_FILE, err_msg);
-
-  // Get main script -->
-  const std::string main_source =
-      project.get_file_content("main.wren", &err_msg);
-  ERR_COND_EXIT_MSG(!err_msg.empty(), FAIL_TO_OPEN_FILE, err_msg);
-  // Get main script <--
-
-  WrenVM* vm;
-  NEW_WREN_VM(vm);
-  LOAD_MODULE;
-  GET_RUNTIME_STATE(vm)->project = &project;
-  WrenInterpretResult result =
-      wrenInterpret(vm, "main.wren", main_source.c_str());
-  FREE_WREN_VM(vm);
+  try {
+    ZipReader project(wrechie_path,
+                      whole_file_size - project_size - sizeof(project_data),
+                      project_size, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY);
+    const std::string main_source = project.get_file_content("main.wren");
+    WrenVM* vm;
+    NEW_WREN_VM(vm);
+    LOAD_MODULE;
+    GET_RUNTIME_STATE(vm)->project = &project;
+    WrenInterpretResult result =
+        wrenInterpret(vm, "main.wren", main_source.c_str());
+    FREE_WREN_VM(vm);
+  } catch (const WrechieException& e) {
+    fmt::print(e.second);
+    return e.first;
+  }
 }

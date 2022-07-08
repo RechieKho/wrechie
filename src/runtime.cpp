@@ -7,13 +7,14 @@
 
 #include <algorithm>
 #include <cpppath.hpp>
+#include <wren.hpp>
 
 #include "fs/fsutils.hpp"
-#include "helper.hpp"
 #include "log.hpp"
 #include "modules/foreign_db.hpp"
 #include "modules/wrenfile_db.hpp"
 #include "typedef.hpp"
+#include "wren_helper.hpp"
 
 void write_fn(WrenVM *vm, const char *text) { fmt::print(text); }
 
@@ -40,17 +41,20 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
         name[0] == '#' ? name + 1
                        : cpppath::join({cpppath::dirname(importer), name});
     module_path = cpppath::normpath(module_path) + ".wren";
-    ERR_COND_RET_MSG(!strncmp(module_path.c_str(), "../", 3), nullptr,
-                     "Importing script outside the project is disallowed.")
+    if (!strncmp(module_path.c_str(), "../", 3)) {
+      fmt::print(
+          FMT_EXC("Importing script outside the project is disallowed."));
+      return nullptr;
+    }
     char *module_path_on_heap;
-    STR_ONTO_HEAP(module_path_on_heap, module_path);
+    STR_ONTO_HEAP(module_path_on_heap, module_path, nullptr);
     return module_path_on_heap;
   } else {
     // package import
     std::string package_name = "*";
     package_name += name;
     char *package_name_on_heap;
-    STR_ONTO_HEAP(package_name_on_heap, package_name);
+    STR_ONTO_HEAP(package_name_on_heap, package_name, nullptr);
     return package_name_on_heap;
   }
 }
@@ -65,18 +69,23 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
 
   if (name[0] == '*') {  // package import
     const char *wrenfile = get_wrenfile(++name);
-    ERR_COND_RET_MSG(!wrenfile, res,
-                     fmt::format("Package '{}' is not found", name));
+    if (!wrenfile) {
+      fmt::print(FMT_EXC("Package '{}' is not found."), name);
+      return {0};
+    }
     res.source = wrenfile;
   } else {  // relative import
-    std::string err;
-    std::string source =
-        GET_RUNTIME_STATE(vm)->project->get_file_content(name, &err);
-    ERR_COND_RET_MSG(!err.empty(), res, err)
-    char *source_on_heap;
-    STR_ONTO_HEAP(source_on_heap, source);
-    res.source = source_on_heap;
-    res.onComplete = load_relative_complete_fn;
+    try {
+      std::string source =
+          GET_RUNTIME_STATE(vm)->project->get_file_content(name);
+      char *source_on_heap;
+      STR_ONTO_HEAP(source_on_heap, source, {0});
+      res.source = source_on_heap;
+      res.onComplete = load_relative_complete_fn;
+    } catch (const WrechieException &e) {
+      fmt::print(e.second);
+      return {0};
+    }
   }
 
   return res;

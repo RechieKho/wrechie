@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "err.hpp"
+#include "exception.hpp"
 #include "fs/fsutils.hpp"
 #include "fs/zip.hpp"
 #include "log.hpp"
@@ -19,7 +19,8 @@ bool get_project_size_in_wrechie(const std::string& wrechie_path,
                                  size_t& project_size,
                                  size_t& whole_file_size) {
   std::ifstream wrechie(wrechie_path, std::ios::binary);
-  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!wrechie.is_open(), wrechie_path);
+  COND_THROW_EXC(!wrechie.is_open(), FAIL_TO_OPEN_FILE,
+                 EXC_STR_FAIL_TO_OPEN_FILE(wrechie_path));
   project_data data = {0};
   whole_file_size = wrechie.seekg(-(sizeof(project_data)), std::ios::end)
                         .read((char*)&data, sizeof(project_data))
@@ -37,10 +38,12 @@ void bundle_project_on_mem(const std::string& wrechie_path, const void* buffer,
                            size_t size, const std::string& output_name) {
   // start file streams
   std::ifstream wrechie(wrechie_path, std::ios::binary);
-  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!wrechie.is_open(), wrechie_path);
+  COND_THROW_EXC(!wrechie.is_open(), FAIL_TO_OPEN_FILE,
+                 EXC_STR_FAIL_TO_OPEN_FILE(wrechie_path));
   std::string output_path = cpppath::join({cpppath::curdir(), output_name});
   std::ofstream output(output_path, std::ios::binary);
-  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!output.is_open(), output_path);
+  COND_THROW_EXC(!output.is_open(), FAIL_TO_OPEN_FILE,
+                 EXC_STR_FAIL_TO_OPEN_FILE(output_path));
 
   // get project size in wrechie
   project_data data = {0};
@@ -78,7 +81,8 @@ void bundle_project(const std::string& wrechie_path,
                     const std::string& project_path) {
   // start file streams
   std::ifstream project(project_path, std::ios::binary);
-  ERR_COND_EXIT_FAIL_TO_OPEN_FILE(!project.is_open(), project_path);
+  COND_THROW_EXC(!project.is_open(), FAIL_TO_OPEN_FILE,
+                 EXC_STR_FAIL_TO_OPEN_FILE(project_path));
 
   project.seekg(0, std::ios::end);
 
@@ -100,45 +104,36 @@ void bundle_project(const std::string& wrechie_path,
 void bundle_project_in_dir(const std::string& wrechie_path,
                            const std::string& dir_path) {
   char resolved_dir_path[MAX_PATH_LEN];
-  ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
-      !GET_REAL_PATH(dir_path.c_str(), resolved_dir_path), dir_path);
+  COND_THROW_EXC(!GET_REAL_PATH(dir_path.c_str(), resolved_dir_path),
+                 FAIL_TO_RESOLVE_PATH, EXC_STR_FAIL_TO_RESOLVE_PATH(dir_path));
 
   struct stat dir_stat;
   stat(resolved_dir_path, &dir_stat);
-  ERR_COND_EXIT_MSG(
-      !S_ISDIR(dir_stat.st_mode), FAIL_TO_OPEN_FILE,
-      fmt::format("Fail to bundle project, given path '{}' is not a directory.",
-                  resolved_dir_path));
+  COND_THROW_EXC(
+      !S_ISDIR(dir_stat.st_mode), INVALID_FILE_FORMAT,
+      EXC_STR_INVALID_FILE_FORMAT(resolved_dir_path, "expecting a directory"));
 
-  std::string err;
-  ZipHeapWriter writer(500, 0, &err);
-  ERR_COND_EXIT_MSG(!err.empty(), ZIP_WRITTER_FAIL, err);
-
-  for (const std::filesystem::directory_entry& dir_entry :
-       std::filesystem::recursive_directory_iterator(resolved_dir_path)) {
-    if (dir_entry.is_regular_file()) {
-      std::string entry_path = dir_entry.path().string();
-      std::string archive_path_prefix = cpppath::dirname(entry_path.substr(
-          strlen(resolved_dir_path) +
-          1));  // assuming resolve_dir_path is the root of project
-      writer.add_file(entry_path, 0, archive_path_prefix, &err);
-      ERR_COND_EXIT_MSG(!err.empty(), ZIP_WRITTER_FAIL, err);
+  try {
+    ZipHeapWriter writer(500, 0);
+    for (const std::filesystem::directory_entry& dir_entry :
+         std::filesystem::recursive_directory_iterator(resolved_dir_path)) {
+      if (dir_entry.is_regular_file()) {
+        std::string entry_path = dir_entry.path().string();
+        std::string archive_path_prefix = cpppath::dirname(entry_path.substr(
+            strlen(resolved_dir_path) +
+            1));  // assuming resolve_dir_path is the root of project
+        writer.add_file(entry_path, 0, archive_path_prefix);
+      }
     }
+    void* zip_binary;
+    size_t zip_binary_size;
+    writer.finalize(&zip_binary, &zip_binary_size);
+
+    std::string project_name =
+        cpppath::filebase(cpppath::normpath(resolved_dir_path)) + ".bin";
+    bundle_project_on_mem(wrechie_path, zip_binary, zip_binary_size,
+                          project_name);
+  } catch (const WrechieException& e) {
+    throw e;
   }
-
-  void* zip_binary;
-  size_t zip_binary_size;
-  writer.finalize(&zip_binary, &zip_binary_size, &err);
-  ERR_COND_EXIT_MSG(!err.empty(), ZIP_WRITTER_FAIL, err);
-
-
-  std::string project_name = cpppath::filebase(cpppath::normpath(resolved_dir_path)) 
-  #if defined(_PLATFORM_WIN_)
-  + ".exe"
-  #else
-  + ".bin"
-  #endif
-  ;
-  bundle_project_on_mem(wrechie_path, zip_binary, zip_binary_size,
-                        project_name);
 }

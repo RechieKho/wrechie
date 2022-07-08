@@ -5,10 +5,10 @@
 #include <cpppath.hpp>
 #include <wren.hpp>
 
-#include "helper.hpp"
 #include "log.hpp"
 #include "runtime.hpp"
 #include "typedef.hpp"
+#include "wren_helper.hpp"
 
 void sep(WrenVM *vm) { wrenSetSlotString(vm, 0, CPPPATH_SEP); }
 

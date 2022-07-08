@@ -16,9 +16,8 @@ class ZipReader {
   std::map<mz_uint64, mz_zip_archive_file_stat> file_stats;
 
  public:
-  ZipReader(const std::string& path, std::string* ret_err_msg = nullptr,
-            mz_uint64 file_start_offset = 0, mz_uint64 archive_size = 0,
-            mz_uint32 flags = 0);
+  ZipReader(const std::string& path, mz_uint64 file_start_offset = 0,
+            mz_uint64 archive_size = 0, mz_uint32 flags = 0);
 
   ~ZipReader();
 
@@ -29,29 +28,21 @@ class ZipReader {
                                   mz_uint32 flags = 0);
 
   // Get file index.
-  mz_uint32 get_file_index(const std::string& path,
-                           std::string* ret_err_msg = nullptr,
-                           mz_uint flags = 0, const std::string& comment = "");
+  mz_uint32 get_file_index(const std::string& path, mz_uint flags = 0,
+                           const std::string& comment = "");
   // Get file stat.
   mz_zip_archive_file_stat get_file_stat(mz_uint32 file_index,
-                                         std::string* ret_err_msg = nullptr,
                                          mz_uint32 flags = 0);
   // Get file stat.
   mz_zip_archive_file_stat get_file_stat(const std::string& path,
-                                         std::string* ret_err_msg = nullptr,
                                          mz_uint32 flags = 0);
   // Get file content.
-  std::string get_file_content(mz_uint file_index,
-                               std::string* ret_err_msg = nullptr,
-                               mz_uint flags = 0);
+  std::string get_file_content(mz_uint file_index, mz_uint flags = 0);
   // Get file content.
-  std::string get_file_content(const std::string& path,
-                               std::string* ret_err_msg = nullptr,
-                               mz_uint flags = 0);
+  std::string get_file_content(const std::string& path, mz_uint flags = 0);
   // Reread the zip file. If the zip file is modified, you need to [reread] or
   // else it will give outdated information.
-  void reread(std::string* ret_err_msg = nullptr,
-              mz_uint64 file_start_offset = 0, mz_uint64 archive_size = 0,
+  void reread(mz_uint64 file_start_offset = 0, mz_uint64 archive_size = 0,
               mz_uint32 flags = 0);
 };
 
@@ -60,13 +51,11 @@ class ZipWriter {
   std::string path;
 
  public:
-  ZipWriter(const std::string& path, mz_uint flags = 0, bool append = true,
-            std::string* ret_err_msg = nullptr);
+  ZipWriter(const std::string& path, mz_uint flags = 0, bool append = true);
   ~ZipWriter();
 
-  bool add_file(const std::string& path, mz_uint flags = 0,
-                const std::string& archive_path_prefix = "",
-                std::string* ret_err_msg = nullptr);
+  void add_file(const std::string& path, mz_uint flags = 0,
+                const std::string& archive_path_prefix = "");
 };
 class ZipHeapWriter {
   mz_zip_archive* writer;
@@ -74,13 +63,10 @@ class ZipHeapWriter {
   size_t finalized_zip_size;
 
  public:
-  ZipHeapWriter(size_t initial_allocation_size, mz_uint flags = 0,
-                std::string* ret_err_msg = nullptr);
+  ZipHeapWriter(size_t initial_allocation_size, mz_uint flags = 0);
   ~ZipHeapWriter();
-  bool add_file(const std::string& path, mz_uint flags = 0,
-                const std::string& archive_path_prefix = "",
-                std::string* ret_err_msg = nullptr);
-  bool finalize(void** ret_buffer, size_t* ret_size,
-                std::string* ret_err_msg = nullptr);
+  void add_file(const std::string& path, mz_uint flags = 0,
+                const std::string& archive_path_prefix = "");
+  void finalize(void** ret_buffer, size_t* ret_size);
 };
 #endif  //_ZIP_HPP_
