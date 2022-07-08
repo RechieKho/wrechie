@@ -26,7 +26,7 @@ if not (
     
 
 ## Configure Options -->
-env = Environment()
+env = Environment(CXXFLAGS="-std=c++17 ")
 opts = Variables()
 opts.Add(EnumVariable("mode", "release or debug mode", "debug", ("release", "debug"), ignorecase=2))
 opts.Add(BoolVariable("compiledb", "Generate `compile_commands.json` for external editor", False))
@@ -50,11 +50,11 @@ if unknowns:
 # No switch case? :(
 if env["mode"] == "debug":
     env.Append(
-        CXXFLAGS = "-g -O0"
+        CXXFLAGS = "-g -O0 "
         )
 elif env["mode"] == "release":
     env.Append(
-        CXXFLAGS = "-O2"
+        CXXFLAGS = "-O2 "
     )
 
 if env["compiledb"]:
