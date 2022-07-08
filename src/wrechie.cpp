@@ -25,21 +25,31 @@ int main(int argc, const char* argv[]) {
 
   if (!get_project_size_in_wrechie(wrechie_path, project_size,
                                    whole_file_size)) {
-    ERR_COND_EXIT_MSG(argc > 2, TOO_MANY_ARGUMENTS, "Too many arguments.");
-    if (argc <= 1) {
-      fmt::print(
-          "{}\n{}\n",
-          fmt::format("wrechie version {}, a general purpose programming "
-                      "environment that runs wren.\n",
-                      WRECHIE_VER),
-          "    usage: wrechie PROJECT_PATH\n");
-      std::exit(TOO_FEW_ARGUMENTS);
-    } else {
-      char project_path[MAX_PATH_LEN];
-      ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
-          GET_REAL_PATH(argv[1], project_path) != project_path, argv[1]);
-      bundle_project(wrechie_path, project_path);
-      std::exit(OK);
+    char target_wrechie_path[MAX_PATH_LEN];
+    strcpy(target_wrechie_path, wrechie_path);
+    switch (argc) {
+      case 1:
+        fmt::print(
+            "{}\n{}\n",
+            fmt::format("wrechie version {}, a general purpose programming "
+                        "environment that runs wren.\n",
+                        WRECHIE_VER),
+            "    usage: wrechie [WRECHIE_PATH] PROJECT_PATH\n");
+        std::exit(TOO_FEW_ARGUMENTS);
+        break;
+      case 3:
+        ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
+            !GET_REAL_PATH(argv[1], target_wrechie_path), argv[1]);
+      case 2:
+        char project_path[MAX_PATH_LEN];
+        ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
+            !GET_REAL_PATH(argv[argc - 1], project_path), argv[argc - 1]);
+        bundle_project(target_wrechie_path, project_path);
+        std::exit(OK);
+        break;
+      default:
+        ERR_EXIT_MSG(TOO_MANY_ARGUMENTS, "Too many arguments.");
+        break;
     }
   };
 
