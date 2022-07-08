@@ -117,7 +117,7 @@ void bundle_project_in_dir(const std::string& wrechie_path,
   for (const std::filesystem::directory_entry& dir_entry :
        std::filesystem::recursive_directory_iterator(resolved_dir_path)) {
     if (dir_entry.is_regular_file()) {
-      std::string entry_path = dir_entry.path();
+      std::string entry_path = dir_entry.path().string();
       std::string archive_path_prefix = cpppath::dirname(entry_path.substr(
           strlen(resolved_dir_path) +
           1));  // assuming resolve_dir_path is the root of project
@@ -131,6 +131,14 @@ void bundle_project_in_dir(const std::string& wrechie_path,
   writer.finalize(&zip_binary, &zip_binary_size, &err);
   ERR_COND_EXIT_MSG(!err.empty(), ZIP_WRITTER_FAIL, err);
 
+
+  std::string project_name = cpppath::filebase(cpppath::normpath(resolved_dir_path)) 
+  #if defined(_PLATFORM_WIN_)
+  + ".exe"
+  #else
+  + ".bin"
+  #endif
+  ;
   bundle_project_on_mem(wrechie_path, zip_binary, zip_binary_size,
-                        cpppath::filebase(resolved_dir_path) + ".bin");
+                        project_name);
 }

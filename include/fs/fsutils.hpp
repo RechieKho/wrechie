@@ -47,7 +47,7 @@
 #if defined(_PLATFORM_UNIX_)
 #define GET_REAL_PATH(path, resolved) realpath(path, resolved)
 #elif defined(_PLATFORM_WIN_)
-#define GET_REAL_PATH(path, resolved, ret) \
+#define GET_REAL_PATH(path, resolved) \
   _fullpath(resolved, path, MAX_PATH_LEN)
 #endif
 #endif
