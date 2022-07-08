@@ -6,9 +6,9 @@
 #include "fs/fsutils.hpp"
 #include "log.hpp"
 
-std::string Zip::is_zip_valid(const std::string& path,
-                              mz_uint64 file_start_offset,
-                              mz_uint64 archive_size, mz_uint32 flags) {
+std::string ZipReader::is_zip_valid(const std::string& path,
+                                    mz_uint64 file_start_offset,
+                                    mz_uint64 archive_size, mz_uint32 flags) {
   const std::string err_template = "file '{}' is not a valid zip file, {}.";
 
   char resolved[MAX_PATH_LEN];
@@ -25,8 +25,9 @@ std::string Zip::is_zip_valid(const std::string& path,
   return nullptr;
 }
 
-Zip::Zip(const std::string& path, std::string* ret_err_msg,
-         mz_uint64 file_start_offset, mz_uint64 archive_size, mz_uint32 flags)
+ZipReader::ZipReader(const std::string& path, std::string* ret_err_msg,
+                     mz_uint64 file_start_offset, mz_uint64 archive_size,
+                     mz_uint32 flags)
     : path(path), reader((mz_zip_archive*)calloc(1, sizeof(mz_zip_archive))) {
   if (!mz_zip_reader_init_file_v2(reader, path.c_str(), flags,
                                   file_start_offset, archive_size)) {
@@ -37,13 +38,14 @@ Zip::Zip(const std::string& path, std::string* ret_err_msg,
     reader_initiated = true;
 }
 
-Zip::~Zip() {
+ZipReader::~ZipReader() {
   if (reader_initiated) mz_zip_reader_end(reader);
   free(reader);
 }
 
-mz_uint32 Zip::get_file_index(const std::string& path, std::string* ret_err_msg,
-                              mz_uint flags, const std::string& comment) {
+mz_uint32 ZipReader::get_file_index(const std::string& path,
+                                    std::string* ret_err_msg, mz_uint flags,
+                                    const std::string& comment) {
   if (file_indices.count(path)) return file_indices[path];
   const std::string err_template =
       "Fail to get file index of file '{}' in zip file '{}', {}.";
@@ -66,9 +68,9 @@ mz_uint32 Zip::get_file_index(const std::string& path, std::string* ret_err_msg,
   return index;
 }
 
-mz_zip_archive_file_stat Zip::get_file_stat(mz_uint32 file_index,
-                                            std::string* ret_err_msg,
-                                            mz_uint32 flags) {
+mz_zip_archive_file_stat ZipReader::get_file_stat(mz_uint32 file_index,
+                                                  std::string* ret_err_msg,
+                                                  mz_uint32 flags) {
   if (file_stats.count(file_index)) return file_stats[file_index];
   const std::string err_template =
       "Fail to get stat of file with index of {} from zip file '{}', {}.";
@@ -90,9 +92,9 @@ mz_zip_archive_file_stat Zip::get_file_stat(mz_uint32 file_index,
   return stat;
 }
 
-mz_zip_archive_file_stat Zip::get_file_stat(const std::string& path,
-                                            std::string* ret_err_msg,
-                                            mz_uint32 flags) {
+mz_zip_archive_file_stat ZipReader::get_file_stat(const std::string& path,
+                                                  std::string* ret_err_msg,
+                                                  mz_uint32 flags) {
   std::string err;
   mz_uint64 file_index = get_file_index(path, &err, flags);
   if (!err.empty()) {
@@ -103,8 +105,9 @@ mz_zip_archive_file_stat Zip::get_file_stat(const std::string& path,
   return get_file_stat(file_index, ret_err_msg, flags);
 }
 
-std::string Zip::get_file_content(mz_uint file_index, std::string* ret_err_msg,
-                                  mz_uint flags) {
+std::string ZipReader::get_file_content(mz_uint file_index,
+                                        std::string* ret_err_msg,
+                                        mz_uint flags) {
   if (file_contents.count(file_index)) return file_contents[file_index];
   const std::string err_template =
       "Fail to get the content of file with index of {} from zip file '{}', "
@@ -132,20 +135,54 @@ std::string Zip::get_file_content(mz_uint file_index, std::string* ret_err_msg,
   return "";
 }
 
-std::string Zip::get_file_content(const std::string& path,
-                                  std::string* ret_err_msg, mz_uint flags) {
+std::string ZipReader::get_file_content(const std::string& path,
+                                        std::string* ret_err_msg,
+                                        mz_uint flags) {
   std::string err;
   mz_uint32 index = get_file_index(path, &err, flags);
   if (!err.empty()) {
     *ret_err_msg = err;
-    return nullptr;
+    return "";
   }
   return get_file_content(index, ret_err_msg, flags);
 }
 
-bool Zip::add_file(const std::string& path,
-                   const std::string& archive_path_prefix,
-                   std::string* ret_err_msg) {
+void ZipReader::reread(std::string* ret_err_msg, mz_uint64 file_start_offset,
+                       mz_uint64 archive_size, mz_uint32 flags) {
+  file_contents.clear();
+  file_indices.clear();
+  file_stats.clear();
+}
+
+ZipWriter::ZipWriter(const std::string& path, mz_uint flags, bool append,
+                     std::string* ret_err_msg)
+    : writer((mz_zip_archive*)calloc(1, sizeof(mz_zip_archive))), path(path) {
+  const std::string err_template =
+      "Fail to start writing zip to path '{}', {}.";
+  if (append) {
+    if (!mz_zip_writer_init_from_reader_v2(writer, path.c_str(), flags))
+      if (ret_err_msg)
+        *ret_err_msg =
+            fmt::format(std::move(err_template), path,
+                        mz_zip_get_error_string(mz_zip_get_last_error(writer)));
+  } else {
+    if (!mz_zip_writer_init_file_v2(writer, path.c_str(), 0, flags))
+      if (ret_err_msg)
+        *ret_err_msg =
+            fmt::format(std::move(err_template), path,
+                        mz_zip_get_error_string(mz_zip_get_last_error(writer)));
+  }
+}
+
+ZipWriter::~ZipWriter() {
+  mz_zip_writer_finalize_archive(writer);
+  mz_zip_writer_end(writer);
+  free(writer);
+}
+
+bool ZipWriter::add_file(const std::string& path, mz_uint flags,
+                         const std::string& archive_path_prefix,
+                         std::string* ret_err_msg) {
   const std::string err_template =
       "Fail to add file '{}' to zip file '{}', {}.";
 
@@ -171,43 +208,82 @@ bool Zip::add_file(const std::string& path,
     return false;
   }
 
-  files_to_be_zipped[archive_path] = resolved;
+  mz_zip_writer_add_file(writer, archive_path.c_str(), resolved, "", 0, flags);
   return true;
 }
 
-bool Zip::write_zip(std::string* ret_err_msg, mz_uint64 levels_and_flags) {
-  mz_zip_archive zip = {0};
-  const std::string err_template = "Fail to write zip file '{}', {}.";
-
-  if (reader_initiated)
-    if (!mz_zip_writer_init_from_reader_v2(&zip, path.c_str(),
-                                           levels_and_flags)) {
+ZipHeapWriter::ZipHeapWriter(size_t initial_allocation_size, mz_uint flags,
+                             std::string* ret_err_msg)
+    : writer((mz_zip_archive*)calloc(1, sizeof(mz_zip_archive))),
+      finalized_zip(nullptr),
+      finalized_zip_size(0) {
+  const std::string err_template = "fail to start writing zip on heap, '{}'.";
+  if (!mz_zip_writer_init_heap_v2(writer, 0, initial_allocation_size, flags))
+    if (ret_err_msg)
       *ret_err_msg =
-          fmt::format(std::move(err_template), path,
-                      mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
-      return false;
-    }
-  for (std::pair<std::string, std::string> file : files_to_be_zipped)
-    if (!mz_zip_writer_add_file(&zip, file.first.c_str(), file.second.c_str(),
-                                nullptr, 0, levels_and_flags)) {
-      std::string& err_msg = *ret_err_msg;
-      err_msg = fmt::format(
-          std::move(err_template), path,
-          fmt::format("{} when writing file '{}' as '{}'.",
-                      mz_zip_get_error_string(mz_zip_get_last_error(&zip)),
-                      file.second, file.first));
-      return false;
+          fmt::format(std::move(err_template),
+                      mz_zip_get_error_string(mz_zip_get_last_error(writer)));
+}
+
+ZipHeapWriter::~ZipHeapWriter() {
+  mz_zip_writer_end(writer);
+  free(writer);
+  if (finalized_zip) free(finalized_zip);
+}
+
+bool ZipHeapWriter::add_file(const std::string& path, mz_uint flags,
+                             const std::string& archive_path_prefix,
+                             std::string* ret_err_msg) {
+  const std::string err_template =
+      "Fail to add file '{}' to zip file on heap, {}.";
+
+  if (finalized_zip)
+    if (ret_err_msg) {
+      *ret_err_msg =
+          fmt::format(std::move(err_template), "zip already be finalized.");
     }
 
-  mz_zip_writer_finalize_archive(&zip);
-  mz_zip_writer_end(&zip);
-  files_to_be_zipped.clear();
+  std::string normalized = cpppath::normpath(archive_path_prefix);
+  if (!strncmp(normalized.c_str(), "../", 3)) {
+    if (ret_err_msg) {
+      *ret_err_msg =
+          fmt::format(std::move(err_template),
+                      "archive path prefix is beyond the base of zip file");
+    }
+    return false;
+  }
+
+  std::string archive_path =
+      cpppath::join({archive_path_prefix, cpppath::filename(path)});
+
+  char resolved[MAX_PATH_LEN];
+  if (GET_REAL_PATH(path.c_str(), resolved) != resolved) {
+    if (ret_err_msg) {
+      *ret_err_msg = fmt::format(std::move(err_template),
+                                 "Fail to resolve given file path.");
+    }
+    return false;
+  }
+
+  mz_zip_writer_add_file(writer, archive_path.c_str(), resolved, "", 0, flags);
   return true;
 }
 
-void Zip::reread(std::string* ret_err_msg, mz_uint64 file_start_offset,
-                 mz_uint64 archive_size, mz_uint32 flags) {
-  file_contents.clear();
-  file_indices.clear();
-  file_stats.clear();
+bool ZipHeapWriter::finalize(void** ret_buffer, size_t* ret_size,
+                             std::string* ret_err_msg) {
+  if (finalized_zip) {
+    *ret_buffer = finalized_zip;
+    *ret_size = finalized_zip_size;
+    return true;
+  }
+  if (!mz_zip_writer_finalize_heap_archive(writer, ret_buffer, ret_size)) {
+    if (ret_err_msg)
+      *ret_err_msg =
+          fmt::format("Fail to finalize zip on heap, {}.",
+                      mz_zip_get_error_string(mz_zip_get_last_error(writer)));
+    return false;
+  }
+  finalized_zip = *ret_buffer;
+  finalized_zip_size = *ret_size;
+  return true;
 }

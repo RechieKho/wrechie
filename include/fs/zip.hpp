@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-class Zip {
+class ZipReader {
   std::string path;
   mz_zip_archive* reader;
   bool reader_initiated;
@@ -15,14 +15,12 @@ class Zip {
   std::map<mz_uint64, std::string> file_contents;  // strings are on heap
   std::map<mz_uint64, mz_zip_archive_file_stat> file_stats;
 
-  std::map<std::string, std::string> files_to_be_zipped;
-
  public:
-  Zip(const std::string& path, std::string* ret_err_msg = nullptr,
-      mz_uint64 file_start_offset = 0, mz_uint64 archive_size = 0,
-      mz_uint32 flags = 0);
+  ZipReader(const std::string& path, std::string* ret_err_msg = nullptr,
+            mz_uint64 file_start_offset = 0, mz_uint64 archive_size = 0,
+            mz_uint32 flags = 0);
 
-  ~Zip();
+  ~ZipReader();
 
   // Returns error string if the zip file is invalid.
   static std::string is_zip_valid(const std::string& path,
@@ -30,14 +28,6 @@ class Zip {
                                   mz_uint64 archive_size = 0,
                                   mz_uint32 flags = 0);
 
-  // Queue file to be zipped by [write_zip].
-  bool add_file(const std::string& path,
-                const std::string& archive_path_prefix = "",
-                std::string* ret_err_msg = nullptr);
-  // Write files queued by [add_file] to zip. Note that you need to [reread] to
-  // mount the newly zipped file into the memory in order to read them.
-  bool write_zip(std::string* ret_err_msg = nullptr,
-                 mz_uint64 levels_and_flags = 0);
   // Get file index.
   mz_uint32 get_file_index(const std::string& path,
                            std::string* ret_err_msg = nullptr,
@@ -65,4 +55,32 @@ class Zip {
               mz_uint32 flags = 0);
 };
 
+class ZipWriter {
+  mz_zip_archive* writer;
+  std::string path;
+
+ public:
+  ZipWriter(const std::string& path, mz_uint flags = 0, bool append = true,
+            std::string* ret_err_msg = nullptr);
+  ~ZipWriter();
+
+  bool add_file(const std::string& path, mz_uint flags = 0,
+                const std::string& archive_path_prefix = "",
+                std::string* ret_err_msg = nullptr);
+};
+class ZipHeapWriter {
+  mz_zip_archive* writer;
+  void* finalized_zip;
+  size_t finalized_zip_size;
+
+ public:
+  ZipHeapWriter(size_t initial_allocation_size, mz_uint flags = 0,
+                std::string* ret_err_msg = nullptr);
+  ~ZipHeapWriter();
+  bool add_file(const std::string& path, mz_uint flags = 0,
+                const std::string& archive_path_prefix = "",
+                std::string* ret_err_msg = nullptr);
+  bool finalize(void** ret_buffer, size_t* ret_size,
+                std::string* ret_err_msg = nullptr);
+};
 #endif  //_ZIP_HPP_

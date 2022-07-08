@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
         char project_path[MAX_PATH_LEN];
         ERR_COND_EXIT_FAIL_TO_RESOLVE_PATH(
             !GET_REAL_PATH(argv[argc - 1], project_path), argv[argc - 1]);
-        bundle_project(target_wrechie_path, project_path);
+        bundle_project_in_dir(target_wrechie_path, project_path);
         std::exit(OK);
         break;
       default:
@@ -54,9 +54,9 @@ int main(int argc, const char* argv[]) {
   };
 
   std::string err_msg;
-  Zip project(wrechie_path, &err_msg,
-              whole_file_size - project_size - sizeof(project_data),
-              project_size, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY);
+  ZipReader project(wrechie_path, &err_msg,
+                    whole_file_size - project_size - sizeof(project_data),
+                    project_size, MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY);
   ERR_COND_EXIT_MSG(!err_msg.empty(), FAIL_TO_OPEN_FILE, err_msg);
 
   // Get main script -->
