@@ -54,3 +54,15 @@ Add `inline` to `all_equal` function on line `414` to fix multiple definition er
 - Upstream: https://github.com/gpakosz/whereami
 - Version: git (ba364cd54fd431c76c045393b6522b4bff547f50, 2018)
 - License: MIT / WTFPL
+
+
+## imgui
+- Upstream: https://github.com/ocornut/imgui
+- Version: 1.88 (9aae45eb4a05a5a1f96be1ef37eb503a12ceb889, 2022)
+- License: MIT
+
+
+## glfw
+- Upstream: https://github.com/glfw/glfw
+- Version: 3.7.7 (45ce5ddd197d5c58f50fdd3296a5131c894e5527, 2022)
+- License: ZLIB
