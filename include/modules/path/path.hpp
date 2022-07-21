@@ -17,4 +17,4 @@ void commonprefix(WrenVM *vm);   // ~Path:commonprefix(_)
 void commondirname(WrenVM *vm);  // ~Path:commondirname(_)
 void exists(WrenVM *vm);         // ~Path:exists(_)
 
-#endif
+#endif  //_PATH_HPP_
