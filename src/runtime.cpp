@@ -43,6 +43,7 @@ const char *resolve_module_fn(WrenVM *vm, const char *importer,
     module_path = cpppath::normpath(module_path) + ".wren";
     if (!strncmp(module_path.c_str(), "../", 3)) {
       fmt::print(
+          stderr,
           FMT_EXC("Importing script outside the project is disallowed."));
       return nullptr;
     }
@@ -70,7 +71,8 @@ WrenLoadModuleResult load_module_fn(WrenVM *vm, const char *name) {
   if (name[0] == '*') {  // package import
     const char *wrenfile = get_wrenfile(++name);
     if (!wrenfile) {
-      fmt::print(FMT_EXC("Package '{}' is not found."), name);
+      fmt::print(stderr,
+                 FMT_EXC(fmt::format("Package '{}' is not found.", name)));
       return {0};
     }
     res.source = wrenfile;

@@ -13,15 +13,15 @@
     std::string src - string to copy from.
     T ret - value to be returned on fail.
 */
-#define STR_ONTO_HEAP(dest, src, ret)                                        \
-  {                                                                          \
-    dest = (char *)malloc(sizeof(char) * (src.length() + 1));                \
-    if (!dest) {                                                             \
-      fmt::print(FMT_EXC(                                                    \
-          EXC_STR_FAIL_TO_ALLOCATE_MEMORY("cannot store string on heap."))); \
-      return ret;                                                            \
-    }                                                                        \
-    strcpy(dest, src.c_str());                                               \
+#define STR_ONTO_HEAP(dest, src, ret)                             \
+  {                                                               \
+    dest = (char *)malloc(sizeof(char) * (src.length() + 1));     \
+    if (!dest) {                                                  \
+      fmt::print(stderr, FMT_EXC(EXC_STR_FAIL_TO_ALLOCATE_MEMORY( \
+                             "cannot store string on heap.")));   \
+      return ret;                                                 \
+    }                                                             \
+    strcpy(dest, src.c_str());                                    \
   }
 #endif  // STR_ONTO_HEAP
 
@@ -31,15 +31,15 @@
     char *dest - where to store the char pointer to heap.
     char *src - string to copy from.
 */
-#define CSTR_ONTO_HEAP(dest, src, ret)                                      \
-  {                                                                         \
-    dest = (char *)malloc(sizeof(char) * (strlen(src) + 1));                \
-    if (!dest) {                                                            \
-      FMT_EXC(                                                              \
-          EXC_STR_FAIL_TO_ALLOCATE_MEMORY("cannot store string on heap.")); \
-      return ret;                                                           \
-    }                                                                       \
-    strcpy(dest, src);                                                      \
+#define CSTR_ONTO_HEAP(dest, src, ret)                            \
+  {                                                               \
+    dest = (char *)malloc(sizeof(char) * (strlen(src) + 1));      \
+    if (!dest) {                                                  \
+      fmt::print(stderr, FMT_EXC(EXC_STR_FAIL_TO_ALLOCATE_MEMORY( \
+                             "cannot store string on heap.")));   \
+      return ret;                                                 \
+    }                                                             \
+    strcpy(dest, src);                                            \
   }
 #endif  // CSTR_ONTO_HEAP
 
