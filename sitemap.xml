@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://rechiekho.github.io/wrechie/</loc>
+         <lastmod>2022-07-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://rechiekho.github.io/wrechie/api/path/</loc>
+         <lastmod>2022-07-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://rechiekho.github.io/wrechie/user_manual/getting_started/</loc>
+         <lastmod>2022-07-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://rechiekho.github.io/wrechie/user_manual/import/</loc>
+         <lastmod>2022-07-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
